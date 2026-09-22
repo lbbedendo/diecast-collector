@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/diecast_collector
+    username: diecast_collector
+    password: diecast_collector
+  jpa:
+    show-sql: true
+
+logging:
+  level:
+    com.diecastcollector.api: DEBUG
+    org.hibernate.SQL: DEBUG

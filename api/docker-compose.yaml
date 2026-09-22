@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: diecast-collector-postgres
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: diecast_collector
+      POSTGRES_USER: ${POSTGRES_USER:-diecast_collector}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-diecast_collector}
+      PGDATA: /data/postgres
+    volumes:
+      - diecast-collector-data:/data/postgres
+    ports:
+      - "5432:5432"
+
+volumes:
+  diecast-collector-data:

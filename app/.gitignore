@@ -1,0 +1,19 @@
+.gradle/
+build/
+.idea/
+.DS_Store
+local.properties
+captures/
+.cxx/
+*.hprof
+.kotlin/
+
+# iOS / Xcode
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+xcuserdata/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+Pods/

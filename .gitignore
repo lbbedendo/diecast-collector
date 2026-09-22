@@ -1,0 +1,76 @@
+# --- IDEs / editors ---
+.idea/
+.junie/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.vs/
+*.swp
+*.swo
+*~
+
+# --- OS ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Environment / secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.jks
+*.keystore
+google-services.json
+GoogleService-Info.plist
+
+# --- api/ (Spring Boot, Gradle, Java) ---
+api/.gradle/
+api/build/
+api/out/
+api/bin/
+api/data/
+api/HELP.md
+!api/.gradle/wrapper/gradle-wrapper.jar
+!api/.gradle/wrapper/gradle-wrapper.properties
+
+# --- app/ (Kotlin Multiplatform, Compose, Android, iOS) ---
+app/.gradle/
+app/*/build/
+app/build/
+app/*.hprof
+app/local.properties
+app/.kotlin/
+app/*/.kotlin/
+app/captures/
+app/.cxx/
+
+# Android
+app/**/build/
+app/**/*.apk
+app/**/*.aab
+
+# iOS / Xcode
+app/iosApp/**/xcuserdata/
+app/iosApp/**/*.xcuserstate
+app/iosApp/**/DerivedData/
+app/iosApp/**/*.xcodeproj/project.xcworkspace/
+app/iosApp/Pods/
+app/iosApp/**/*.ipa
+app/iosApp/**/*.dSYM.zip
+app/iosApp/**/*.dSYM
+
+# Kotlin/Native
+app/**/*.kexe
+app/**/*.klib
+
+# --- Logs ---
+*.log
+logs/

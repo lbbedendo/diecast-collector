@@ -1,0 +1,52 @@
+package com.diecastcollector.app.model
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Automaker(val id: Long, val name: String)
+
+@Serializable
+data class Brand(val id: Long, val name: String)
+
+@Serializable
+data class Collection(val id: Long, val name: String)
+
+@Serializable
+data class DiecastModel(
+    val id: Long,
+    val name: String,
+    val automaker: Automaker?,
+    val brand: Brand,
+    val collection: Collection?,
+    val scale: String?,
+    val condition: String?,
+    val yearReleased: Int?,
+    val color: String?,
+    val notes: String?,
+    val photoUrl: String?
+)
+
+@Serializable
+data class ModelRequest(
+    val name: String,
+    val automakerId: Long?,
+    val brandId: Long,
+    val collectionId: Long?,
+    val scale: String?,
+    val condition: String?,
+    val yearReleased: Int?,
+    val color: String?,
+    val notes: String?
+)
+
+@Serializable
+data class SocialLoginRequest(val provider: String, val idToken: String)
+
+@Serializable
+data class AuthResponse(val token: String, val user: UserResponse)
+
+@Serializable
+data class UserResponse(val id: Long, val email: String, val displayName: String?)
+
+@Serializable
+data class PhotoUploadResponse(val photoUrl: String)
