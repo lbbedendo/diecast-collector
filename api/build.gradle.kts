@@ -41,8 +41,12 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.testcontainers:junit-jupiter:1.20.1")
-    testImplementation("org.testcontainers:postgresql:1.20.1")
+    // Testcontainers 2.x is required for compatibility with Docker Engine 29+
+    // (Docker 29 raised its minimum supported API version; Testcontainers 1.x's
+    // docker-java client negotiates down to an API version Docker 29 now rejects).
+    testImplementation("org.testcontainers:testcontainers:2.0.5")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter:2.0.5")
+    testImplementation("org.testcontainers:testcontainers-postgresql:2.0.5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
