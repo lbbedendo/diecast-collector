@@ -16,7 +16,7 @@ class AutomakerControllerTest extends AbstractIntegrationTest {
 
     @Test
     void createAndFetchAutomaker() {
-        var request = new AutomakerRequest("Ferrari");
+        var request = new AutomakerRequest("Ferrari", "Italy");
 
         ResponseEntity<Object> created = restTemplate.postForEntity("/automakers", request, Object.class);
         assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
