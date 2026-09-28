@@ -5,3 +5,4 @@ data/
 *.iml
 .idea/
 out/
+local.properties

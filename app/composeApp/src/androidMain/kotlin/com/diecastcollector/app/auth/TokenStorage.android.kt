@@ -3,11 +3,11 @@ package com.diecastcollector.app.auth
 import android.content.Context
 import android.content.SharedPreferences
 
-actual typealias PlatformContext = Context
+actual class PlatformContext(val context: Context)
 
 actual class TokenStorage actual constructor(context: PlatformContext) {
     private val prefs: SharedPreferences =
-        context.getSharedPreferences("diecast_collector_auth", Context.MODE_PRIVATE)
+        context.context.getSharedPreferences("diecast_collector_auth", Context.MODE_PRIVATE)
 
     actual fun save(token: String) {
         prefs.edit().putString(KEY_TOKEN, token).apply()
