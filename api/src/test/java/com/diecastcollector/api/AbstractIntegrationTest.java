@@ -5,8 +5,6 @@ import com.diecastcollector.api.enums.AuthProvider;
 import com.diecastcollector.api.repository.UserRepository;
 import com.diecastcollector.api.security.AppJwtService;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -25,24 +23,26 @@ public abstract class AbstractIntegrationTest {
                     .withUsername("diecast_collector")
                     .withPassword("diecast_collector");
 
-    @Autowired private UserRepository userRepository;
-    @Autowired private AppJwtService appJwtService;
-
-    @BeforeAll
-    static void startContainer() {
+    static {
+        // Started once and never explicitly stopped (singleton container pattern): with several
+        // test classes sharing this static field, per-class @BeforeAll/@AfterAll would stop and
+        // restart it between classes, racing new connections against the restart. Testcontainers'
+        // own Ryuk reaper stops it when the JVM exits.
         POSTGRES.start();
     }
 
-    @AfterAll
-    static void stopContainer() {
-        POSTGRES.stop();
-    }
+    @Autowired private UserRepository userRepository;
+    @Autowired private AppJwtService appJwtService;
 
     @DynamicPropertySource
     static void registerProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRES::getUsername);
         registry.add("spring.datasource.password", POSTGRES::getPassword);
+        // application.yml no longer ships a default (see APP_JWT_SECRET) — tests need their own.
+        registry.add(
+                "app.jwt.secret",
+                () -> "test-only-jwt-signing-secret-not-for-production-use-0123456789abcdef");
     }
 
     /** Persists a fresh test user and returns headers bearing a valid access token for them. */
