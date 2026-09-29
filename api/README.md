@@ -1,11 +1,11 @@
 # Diecast Collector API (v2)
 
-Spring Boot 3 REST API for the diecast collector mobile app, replacing the earlier Micronaut
+Spring Boot 4 REST API for the diecast collector mobile app, replacing the earlier Micronaut
 prototype in `diecast-collector-api` (left untouched as a reference).
 
 ## Stack
 
-- Java 21 (LTS), Spring Boot 3.3
+- Java 25 (LTS), Spring Boot 4.1
 - PostgreSQL 17, Flyway migrations
 - Spring Data JPA (Hibernate)
 - Spring Security, stateless, app-issued JWT sessions

@@ -1,14 +1,18 @@
 # Diecast Collector App
 
-A ground-up rebuild of the diecast-collection tracker: a Kotlin Multiplatform mobile app backed
-by a new Spring Boot API, replacing the earlier Micronaut prototype (`../diecast-collector-api`,
-left untouched).
+An app for diecast collectors to track their collection of scale models. Collectors sign in
+with Google or Apple, then catalogue each piece they own: its real-world automaker, the diecast
+brand that produced it, its scale and condition, series details, what they paid and where, and a
+photo taken with the phone's camera. Each user's collection is private to them, so the app can
+serve many collectors at once.
+
+It's made up of a Kotlin Multiplatform mobile app (Android + iOS) backed by a Spring Boot REST API.
 
 ## Layout
 
 ```
 diecast-collector-app/
-├── api/   Spring Boot 3 REST API (Java 21), PostgreSQL, Google/Apple social login
+├── api/   Spring Boot 4 REST API (Java 25), PostgreSQL, Google/Apple social login
 └── app/   Kotlin Multiplatform + Compose Multiplatform app (Android + iOS)
 ```
 
@@ -22,24 +26,19 @@ cd api && docker compose up -d && ./gradlew bootRun   # API on :8080
 cd app                                                 # open in Android Studio, run composeApp
 ```
 
-## Design decisions carried over from the review of the old API
+## Data model
 
-The old Micronaut API (`../diecast-collector-api`) had a `Model` entity with `@OneToOne`
-relations to `Automaker`/`Collection`/`Brand` that were really many-to-one, and no per-user
-ownership (it was single-collection, not multi-tenant). Both are fixed here: `Model` uses
-`@ManyToOne`, and every model now belongs to a `User` created on first social login, since the
-app now needs to support more than one person's collection.
+A `Model` is a single diecast piece in someone's collection. It belongs to the `User` created on
+their first social login, and has many-to-one references to an `Automaker` (the real-world car
+maker, e.g. Honda), a `Brand` (the diecast maker, e.g. Hot Wheels) and a `Collection`. Automakers,
+brands and collections are shared across all users; models are scoped to their owner.
 
-## What "supporting multiple brands" changed on the data model
-
-`Automaker` (the real-world car maker, e.g. Honda) and `Brand` (the diecast brand, e.g. Hot
-Wheels) already existed as separate concepts in the old schema — that part was already
-brand-agnostic. What was missing was room for how brands differ in *how they describe a piece*:
-`Model` gained `condition`, `seriesName` / `seriesNumber` (a brand's own wave/card numbering),
-a generic `chase` flag standing in for brand-specific "rare variant" names (Treasure Hunt, Super,
-Premium, ...), plus `purchasePrice` / `purchaseDate` / `purchasedFrom`, `notes`, and `photoUrl`
-for the camera-capture flow. None of this is brand-specific by name, so a Hot Wheels, Matchbox,
-or California Collectibles piece all use the same fields.
+Brands differ in *how they describe a piece*, so `Model` uses generic fields rather than
+brand-specific ones: `condition`, `seriesName` / `seriesNumber` (a brand's own wave/card
+numbering), a `chase` flag standing in for brand-specific "rare variant" names (Treasure Hunt,
+Super, Premium, ...), plus `purchasePrice` / `purchaseDate` / `purchasedFrom`, `notes`, and
+`photoUrl` for the camera-capture flow. A Hot Wheels, Matchbox, or California Collectibles piece
+all use the same fields.
 
 ## Known gaps (see the two READMEs for the full list)
 
