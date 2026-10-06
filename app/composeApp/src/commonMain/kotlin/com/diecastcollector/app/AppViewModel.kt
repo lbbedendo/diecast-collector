@@ -42,7 +42,7 @@ class AppViewModel(private val tokenStorage: TokenStorage) {
         runCatching {
             api.login(SocialLoginRequest(provider = provider, idToken = idToken))
         }.onSuccess { response ->
-            tokenStorage.save(response.token)
+            tokenStorage.save(response.accessToken)
             _uiState.value = _uiState.value.copy(isLoggedIn = true, isLoading = false)
         }.onFailure { error ->
             _uiState.value = _uiState.value.copy(isLoading = false, error = error.message)

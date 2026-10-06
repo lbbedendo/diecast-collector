@@ -43,7 +43,7 @@ data class ModelRequest(
 data class SocialLoginRequest(val provider: String, val idToken: String)
 
 @Serializable
-data class AuthResponse(val token: String, val user: UserResponse)
+data class AuthResponse(val accessToken: String, val user: UserResponse)
 
 @Serializable
 data class UserResponse(val id: Long, val email: String, val displayName: String?)

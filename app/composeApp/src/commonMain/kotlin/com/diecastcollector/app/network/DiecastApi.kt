@@ -41,11 +41,19 @@ class DiecastApi(
         }
     }
 
-    suspend fun login(request: SocialLoginRequest): AuthResponse =
-        client.post("$baseUrl/auth/login") {
+    suspend fun login(request: SocialLoginRequest): AuthResponse {
+        // The backend has one endpoint per provider (see AuthController), not a unified
+        // /auth/login — route by the provider string set on SocialSignInResult ("google"/"apple").
+        val endpoint = when (request.provider) {
+            "google" -> "google"
+            "apple" -> "apple"
+            else -> throw IllegalArgumentException("Unsupported auth provider: ${request.provider}")
+        }
+        return client.post("$baseUrl/auth/$endpoint") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body()
+    }
 
     suspend fun getModels(): List<DiecastModel> =
         client.get("$baseUrl/models") { authorized() }.body()
