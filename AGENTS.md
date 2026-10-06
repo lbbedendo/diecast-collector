@@ -8,7 +8,7 @@ that aren't obvious from reading the code, and that have already caused real bui
 
 ```
 diecast-collector-app/
-├── api/   Spring Boot 3 REST API (Java 21), PostgreSQL, Google/Apple social login
+├── api/   Spring Boot 4 REST API (Java 25), PostgreSQL, Google/Apple social login
 └── app/   Kotlin Multiplatform + Compose Multiplatform app (Android + iOS)
 ```
 
@@ -17,7 +17,7 @@ build) that happen to live in one repo.
 
 ## api/ — Spring Boot API
 
-**Stack:** Java 21, Spring Boot 3.3, PostgreSQL 17 + Flyway, Spring Security (stateless JWT),
+**Stack:** Java 25, Spring Boot 4.1, PostgreSQL 17 + Flyway, Spring Security (stateless JWT),
 Testcontainers 2.x for integration tests.
 
 **Build & test:**
@@ -51,6 +51,11 @@ cd api
   `hibernate.ddl-auto: validate` only catches the mismatch at context-startup time (i.e. when a
   test runs), it won't stop you from writing one. If you add or rename a field on an entity,
   update `V1__init.sql` (or add a new migration) in the same change.
+- Spring Boot 4 split test support into per-technology modules. `TestRestTemplate` now lives in
+  `org.springframework.boot.resttestclient` and needs **both** `spring-boot-resttestclient` and
+  `spring-boot-restclient` on the test classpath, plus `@AutoConfigureTestRestTemplate` (already on
+  `AbstractIntegrationTest`). Missing `spring-boot-restclient` fails every test at context load with
+  `NoClassDefFoundError: org/springframework/boot/restclient/RestTemplateBuilder`.
 - `POST /models` returns nested `automaker`/`brand`/`collection` as bare `{id}` references, not
   fully hydrated — `ModelService.create()` never re-fetches them after save. `GET /models/{id}`
   *does* fully hydrate them via `@EntityGraph`. Don't assume the create response gives you names.
