@@ -49,6 +49,19 @@ class AppViewModel(private val tokenStorage: TokenStorage) {
         }
     }
 
+    // TODO: remove once real Google/Apple sign-in is wired up — see DiecastApi.devLogin().
+    suspend fun devLogin() {
+        _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+        runCatching { api.devLogin() }
+            .onSuccess { response ->
+                tokenStorage.save(response.accessToken)
+                _uiState.value = _uiState.value.copy(isLoggedIn = true, isLoading = false)
+            }
+            .onFailure { error ->
+                _uiState.value = _uiState.value.copy(isLoading = false, error = error.message)
+            }
+    }
+
     fun logout() {
         tokenStorage.clear()
         _uiState.value = AppUiState(isLoggedIn = false)

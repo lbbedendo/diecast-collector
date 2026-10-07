@@ -59,6 +59,25 @@ cd api
 - `POST /models` returns nested `automaker`/`brand`/`collection` as bare `{id}` references, not
   fully hydrated — `ModelService.create()` never re-fetches them after save. `GET /models/{id}`
   *does* fully hydrate them via `@EntityGraph`. Don't assume the create response gives you names.
+- `SecurityConfig` permits `/error` explicitly, and that's load-bearing: when a request hits a
+  genuinely unmapped path, Boot's default error handling forwards it internally to `/error`, and
+  *that* forwarded request is itself subject to `anyRequest().authenticated()` — without the
+  explicit permit, every 404 gets reported as a misleading 403 instead. Found via a test that hit
+  an intentionally-unmapped path under a `permitAll()` prefix; nothing had exercised that before.
+- A local `docker compose up -d` Postgres can go stale across sessions: the named volume
+  (`diecast-collector-data`) persists even after `docker compose down`, so if `V1__init.sql`
+  changes after you've run `bootRun` once, the next `bootRun` fails with a Flyway checksum
+  mismatch (`Migration checksum mismatch for migration version 1`). Testcontainers-based
+  integration tests never hit this (fresh DB every run) — only a manual local `bootRun` can. Fix
+  by dropping that volume (`docker compose down -v`) if you're sure there's nothing worth keeping
+  in it, never by editing the checksum in `flyway_schema_history` directly.
+- `DevAuthController` (`/auth/dev`) mints a real JWT for a fixed throwaway user with no ID token
+  check at all — it exists purely so the mobile app can be exercised against a local API before
+  Google/Apple sign-in is wired up. It's gated by `@ConditionalOnProperty` on the *bean itself*
+  (`app.auth.dev-login.enabled`, default `false`), not an in-method check — so the route simply
+  doesn't exist unless `APP_AUTH_DEV_LOGIN_ENABLED=true` is set. Never flip that default, and
+  remove this controller entirely once real sign-in replaces it (see the `TODO`s on the app side:
+  `LoginScreen`'s "Dev login" button, `AppViewModel.devLogin()`, `DiecastApi.devLogin()`).
 
 ## app/ — Kotlin Multiplatform app
 
@@ -93,6 +112,18 @@ cd app
 - Google/Apple sign-in and iOS camera capture are intentionally stubbed with `TODO`s — don't
   "fix" these without first confirming Google/Apple OAuth credentials exist (see `api/README.md`
   auth flow) and, for iOS, that an `.xcodeproj` has been generated on a Mac.
+- `API_BASE_URL` (`HttpClientConfig.kt`) points at `http://10.0.2.2:8080`, the Android emulator's
+  alias for the host — this only works in the emulator; a physical device needs your host's LAN
+  IP instead. Plaintext HTTP to that address requires the debug-only manifest override at
+  `composeApp/src/debug/AndroidManifest.xml` (`usesCleartextTraffic`) — note the path is AGP's
+  standard `src/debug/`, **not** the KMP-layout-v2 `src/androidDebug/` convention used for Kotlin
+  sources; AGP doesn't look there for manifests even though `kotlin.mpp.androidSourceSetLayoutVersion=2`
+  is set in `gradle.properties`.
+- There's no real sign-in flow wired up at all yet (see above), so `LoginScreen` has a "Dev login
+  (local only)" button calling `AppViewModel.devLogin()` → `DiecastApi.devLogin()` →
+  `POST /auth/dev` (see the matching API-side note on `DevAuthController`). It's a visible,
+  always-present button rather than something built-type-gated, because the real safety boundary
+  is server-side: against any backend without dev-login enabled, it just 404s.
 
 ## Local emulator setup (this environment specifically)
 

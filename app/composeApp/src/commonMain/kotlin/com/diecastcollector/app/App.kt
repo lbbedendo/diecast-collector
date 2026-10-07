@@ -46,7 +46,8 @@ fun App(tokenStorage: TokenStorage) {
             when (screen) {
                 Screen.Login -> LoginScreen(
                     uiState = uiState,
-                    onLogin = { provider, idToken -> scope.launch { viewModel.login(provider, idToken) } }
+                    onLogin = { provider, idToken -> scope.launch { viewModel.login(provider, idToken) } },
+                    onDevLogin = { scope.launch { viewModel.devLogin() } }
                 )
                 Screen.List -> CollectionListScreen(
                     uiState = uiState,

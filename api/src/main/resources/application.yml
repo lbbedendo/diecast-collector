@@ -34,6 +34,11 @@ app:
       client-id: ${GOOGLE_CLIENT_ID:}
     apple:
       client-id: ${APPLE_CLIENT_ID:}
+    dev-login:
+      # Mints a real app JWT for a throwaway local user without a Google/Apple ID token, so the
+      # mobile app can be exercised against a local API before sign-in is wired up. Never enable
+      # outside local development — see DevAuthController.
+      enabled: ${APP_AUTH_DEV_LOGIN_ENABLED:false}
 
 logging:
   level:

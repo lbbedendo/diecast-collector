@@ -55,6 +55,10 @@ class DiecastApi(
         }.body()
     }
 
+    // TODO: remove once real Google/Apple sign-in is wired up. Only works against a local API
+    // started with APP_AUTH_DEV_LOGIN_ENABLED=true — see DevAuthController on the API side.
+    suspend fun devLogin(): AuthResponse = client.post("$baseUrl/auth/dev").body()
+
     suspend fun getModels(): List<DiecastModel> =
         client.get("$baseUrl/models") { authorized() }.body()
 
