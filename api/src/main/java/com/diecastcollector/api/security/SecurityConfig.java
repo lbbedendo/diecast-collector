@@ -25,6 +25,10 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Boot's default error handling forwards an unmatched request to /error
+                        // internally; without this, that forwarded request falls through to
+                        // anyRequest().authenticated() and a plain 404 gets reported as a 403.
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/photos/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
