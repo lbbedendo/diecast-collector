@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Debug-only override: allows plaintext HTTP so the app can reach a local API
+    (see API_BASE_URL in HttpClientConfig.kt) during development. Never merged into
+    release builds, since this source set only applies to the debug build type.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:usesCleartextTraffic="true" />
+</manifest>
