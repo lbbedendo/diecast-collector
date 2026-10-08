@@ -31,12 +31,17 @@ architecture, AGENTS.md covers "things that will burn you if you don't know them
 ```bash
 cd api
 docker compose up -d                 # start Postgres (only external dependency)
-./gradlew bootRun                    # run the API locally, port 8080
+source .env && ./gradlew bootRun     # run the API locally, port 8080
 ./gradlew build                      # compile + run all tests
 ./gradlew test                       # tests only
 ./gradlew test --tests "com.diecastcollector.api.controller.AutomakerControllerTest"            # one test class
 ./gradlew test --tests "com.diecastcollector.api.controller.AutomakerControllerTest.createAutomaker"  # one test method
 ```
+
+`.env` (gitignored, not committed) holds `APP_JWT_SECRET` and `GOOGLE_CLIENT_ID` — `application.yml`
+has no default for either, so `bootRun` fails fast with `WeakKeyException` if it isn't sourced first.
+`./gradlew build`/`test` don't need it: integration tests supply their own secret via
+`AbstractIntegrationTest`'s `@DynamicPropertySource`.
 
 Flyway runs migrations (`src/main/resources/db/migration`) automatically on startup. Integration
 tests boot a real Postgres via Testcontainers — no separate test DB setup needed, but Docker must
