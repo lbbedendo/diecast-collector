@@ -1,5 +1,6 @@
 package com.diecastcollector.api.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 /** Serves photos stored by {@link com.diecastcollector.api.service.PhotoStorageService}. */
+// Public: no bearer token needed (see SecurityConfig), so no padlock in Swagger UI.
+@SecurityRequirements
 @RestController
 public class PhotoController {
 

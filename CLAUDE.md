@@ -32,6 +32,7 @@ architecture, AGENTS.md covers "things that will burn you if you don't know them
 cd api
 docker compose up -d                 # start Postgres (only external dependency)
 source .env && ./gradlew bootRun     # run the API locally, port 8080
+# Swagger UI: http://localhost:8080/swagger-ui/index.html ("Authorize" takes the API's own JWT)
 ./gradlew build                      # compile + run all tests
 ./gradlew test                       # tests only
 ./gradlew test --tests "com.diecastcollector.api.controller.AutomakerControllerTest"            # one test class

@@ -4,12 +4,15 @@ import com.diecastcollector.api.dto.AuthResponse;
 import com.diecastcollector.api.dto.SocialLoginRequest;
 import com.diecastcollector.api.enums.AuthProvider;
 import com.diecastcollector.api.service.AuthService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+// Public: no bearer token needed (see SecurityConfig), so no padlock in Swagger UI.
+@SecurityRequirements
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
