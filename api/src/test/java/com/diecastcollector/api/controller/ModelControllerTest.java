@@ -19,6 +19,8 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.http.HttpEntity;
@@ -34,7 +36,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
     @Test
     void createModel() {
         var headers = authHeaders();
-        var request = modelRequest(headers, "Ferrari 458 Italia");
+        var request = modelRequest(headers, "458 Italia");
 
         ResponseEntity<ModelResponse> response =
                 restTemplate.exchange("/models", HttpMethod.POST, new HttpEntity<>(request, headers), ModelResponse.class);
@@ -42,7 +44,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().id()).isNotNull();
-        assertThat(response.getBody().name()).isEqualTo("Ferrari 458 Italia");
+        assertThat(response.getBody().name()).isEqualTo("458 Italia");
         assertThat(response.getBody().vehicleYear()).isEqualTo(2015);
         assertThat(response.getBody().scale()).isEqualTo(ModelScale.SCALE_1_64);
         // Packaging and Condition are independent: a loose diecast can still be mint.
@@ -57,12 +59,12 @@ class ModelControllerTest extends AbstractIntegrationTest {
     @Test
     void fetchModel() {
         var headers = authHeaders();
-        ModelResponse created = create(headers, modelRequest(headers, "Porsche 911 GT3"));
+        ModelResponse created = create(headers, modelRequest(headers, "F40"));
 
         ResponseEntity<ModelResponse> byId = restTemplate.exchange(
                 "/models/" + created.id(), HttpMethod.GET, new HttpEntity<>(headers), ModelResponse.class);
         assertThat(byId.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(byId.getBody().name()).isEqualTo("Porsche 911 GT3");
+        assertThat(byId.getBody().name()).isEqualTo("F40");
         // Unlike the create response, GET fully hydrates the nested entities (@EntityGraph fetch).
         assertThat(byId.getBody().automaker().name()).startsWith("Ferrari-");
         assertThat(byId.getBody().series().name()).startsWith("HW Starting Grid-");
@@ -78,7 +80,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
     @Test
     void fetchModelIsScopedToOwner() {
         var owner = authHeaders();
-        ModelResponse created = create(owner, modelRequest(owner, "Owner-only Civic"));
+        ModelResponse created = create(owner, modelRequest(owner, "Testarossa"));
 
         var otherUser = authHeaders();
         ResponseEntity<Object> response = restTemplate.exchange(
@@ -89,10 +91,10 @@ class ModelControllerTest extends AbstractIntegrationTest {
     @Test
     void updateModel() {
         var headers = authHeaders();
-        ModelResponse created = create(headers, modelRequest(headers, "Lamborghini Huracan"));
+        ModelResponse created = create(headers, modelRequest(headers, "F8 Tributo"));
 
         var updateRequest = new ModelRequest(
-                "Lamborghini Huracan EVO",
+                "F8 Spider",
                 created.vehicleYear(),
                 created.scale(),
                 "Yellow",
@@ -111,7 +113,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
                 "/models/" + created.id(), HttpMethod.PUT, new HttpEntity<>(updateRequest, headers), ModelResponse.class);
 
         assertThat(updated.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(updated.getBody().name()).isEqualTo("Lamborghini Huracan EVO");
+        assertThat(updated.getBody().name()).isEqualTo("F8 Spider");
         assertThat(updated.getBody().color()).isEqualTo("Yellow");
         assertThat(updated.getBody().packaging()).isEqualTo(ModelPackaging.SEALED);
         assertThat(updated.getBody().condition()).isEqualTo(ModelCondition.POOR);
@@ -119,10 +121,27 @@ class ModelControllerTest extends AbstractIntegrationTest {
 
         ResponseEntity<ModelResponse> refetched = restTemplate.exchange(
                 "/models/" + created.id(), HttpMethod.GET, new HttpEntity<>(headers), ModelResponse.class);
-        assertThat(refetched.getBody().name()).isEqualTo("Lamborghini Huracan EVO");
+        assertThat(refetched.getBody().name()).isEqualTo("F8 Spider");
         assertThat(refetched.getBody().chase()).isTrue();
         assertThat(refetched.getBody().packaging()).isEqualTo(ModelPackaging.SEALED);
         assertThat(refetched.getBody().condition()).isEqualTo(ModelCondition.POOR);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ModelScale.class)
+    void everyScaleRoundTrips(ModelScale scale) {
+        var headers = authHeaders();
+
+        ResponseEntity<ModelResponse> created = restTemplate.exchange(
+                "/models",
+                HttpMethod.POST,
+                new HttpEntity<>(Map.of("name", "F2004", "chase", false, "scale", scale.name()), headers),
+                ModelResponse.class);
+        assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        ResponseEntity<ModelResponse> refetched = restTemplate.exchange(
+                "/models/" + created.getBody().id(), HttpMethod.GET, new HttpEntity<>(headers), ModelResponse.class);
+        assertThat(refetched.getBody().scale()).isEqualTo(scale);
     }
 
     @Test
@@ -147,7 +166,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
         ResponseEntity<Object> response = restTemplate.exchange(
                 "/models",
                 HttpMethod.POST,
-                new HttpEntity<>(Map.of("name", "Datsun 510", "chase", false, "condition", "SEALED"), headers),
+                new HttpEntity<>(Map.of("name", "510", "chase", false, "condition", "SEALED"), headers),
                 Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -155,7 +174,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
     @Test
     void deleteModel() {
         var headers = authHeaders();
-        ModelResponse created = create(headers, modelRequest(headers, "Nissan Skyline GT-R"));
+        ModelResponse created = create(headers, modelRequest(headers, "F2004"));
 
         ResponseEntity<Void> deleted = restTemplate.exchange(
                 "/models/" + created.id(), HttpMethod.DELETE, new HttpEntity<>(headers), Void.class);

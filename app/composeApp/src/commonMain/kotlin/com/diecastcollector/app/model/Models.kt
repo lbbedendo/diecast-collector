@@ -23,9 +23,13 @@ enum class Scale(val label: String) {
     SCALE_1_18("1:18"),
     SCALE_1_24("1:24"),
     SCALE_1_32("1:32"),
+    SCALE_1_36("1:36"),
     SCALE_1_38("1:38"),
     SCALE_1_43("1:43"),
+    SCALE_1_50("1:50"),
     SCALE_1_64("1:64"),
+    SCALE_1_72("1:72"),
+    SCALE_1_76("1:76"),
     SCALE_1_87("1:87"),
     OTHER("Other")
 }
@@ -62,6 +66,14 @@ data class DiecastModel(
     val notes: String?,
     val photoUrl: String?
 )
+
+/**
+ * How a Model is titled in lists: "Ferrari F2004". A Model's name never includes its Automaker
+ * (see Name in CONTEXT.md), so the two are joined here; a Model with no Automaker (a fictional
+ * vehicle like "Bone Shaker") shows its name alone.
+ */
+val DiecastModel.displayName: String
+    get() = listOfNotNull(automaker?.name, name).joinToString(" ")
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable

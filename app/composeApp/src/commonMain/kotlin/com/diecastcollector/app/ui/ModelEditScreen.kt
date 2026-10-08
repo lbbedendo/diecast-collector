@@ -61,6 +61,7 @@ fun ModelEditScreen(
             value = name,
             onValueChange = { name = it },
             label = { Text("Name") },
+            placeholder = { Text("Vehicle name, without the automaker (e.g. F2004)") },
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
         )
 

@@ -49,6 +49,15 @@ class ModelRequestSerializationTest {
     }
 
     @Test
+    fun everyScaleEncodesAsItsName() {
+        // The API's ModelScale accepts names only; ScaleParityTest checks the names match the API's.
+        for (scale in Scale.entries) {
+            val json = apiJson.encodeToJsonElement(ModelRequest.serializer(), request().copy(scale = scale)).jsonObject
+            assertEquals(scale.name, json.getValue("scale").jsonPrimitive.content)
+        }
+    }
+
+    @Test
     fun scaleReadsBackFromApiResponse() {
         // Shape of GET /models/{id}: the API returns the enum name, which the app shows as "1:64".
         val model = apiJson.decodeFromString(

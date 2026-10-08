@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.diecastcollector.app.AppUiState
 import com.diecastcollector.app.model.DiecastModel
+import com.diecastcollector.app.model.displayName
 
 @Composable
 fun CollectionListScreen(
@@ -56,9 +57,10 @@ private fun ModelRow(model: DiecastModel, onDelete: () -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            Text(model.name)
+            Text(model.displayName)
             // A Model's Brand comes from its Series; a Model with no Series has no known Brand.
-            Text(listOfNotNull(model.series?.brand?.name, model.automaker?.name).joinToString(" · "))
+            // The Automaker is already in the title.
+            Text(listOfNotNull(model.series?.brand?.name, model.series?.name).joinToString(" · "))
         }
         TextButton(onClick = onDelete) { Text("Delete") }
     }
