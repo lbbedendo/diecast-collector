@@ -64,16 +64,16 @@ interactively; see `app/README.md` for emulator networking (`10.0.2.2:8080` reac
 ### api/ — layered Spring Boot app
 
 `Controller → Service → Repository → Domain entity`, one of each per resource
-(`Automaker`, `Brand`, `Collection`, `Model`; `User` has no controller — only created via social
+(`Automaker`, `Brand`, `Series`, `Model`; `User` has no controller — only created via social
 login). Controllers map DTO records (`dto/*Request`, `dto/*Response`) to/from domain entities;
 services hold the only business logic and own `@Transactional` boundaries; repositories are plain
 Spring Data JPA interfaces.
 
 **Data model:** `Model` is the only per-user resource (`owner_id`, scoped via `CurrentUser.id()`
-on every read/write). `Automaker`, `Brand`, and `Collection` are shared/global reference data
+on every read/write). `Automaker`, `Brand`, and `Series` are shared/global reference data
 with no ownership — don't add per-user scoping to those without it being a deliberate product
 decision. `Model` has `@ManyToOne` references to all three, plus brand-agnostic fields
-(`condition`, `seriesName`/`seriesNumber`, `chase`, `purchasePrice`/`purchaseDate`/`purchasedFrom`,
+(`condition`, `seriesNumber`, `chase`, `purchasePrice`/`purchaseDate`/`purchasedFrom`,
 `notes`, `photoUrl`) so any diecast brand's pieces fit the same schema.
 
 **Auth is two-layer, not one JWT:** the mobile app signs in with the native Google/Apple SDK to

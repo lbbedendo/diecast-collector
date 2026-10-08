@@ -21,8 +21,8 @@ prototype in `diecast-collector-api` (left untouched as a reference).
   because the associations are nullable, a unidirectional `@OneToOne(fetch = LAZY)` can't
   actually be lazy in Hibernate without bytecode enhancement).
 - New fields on `Model` to support brands beyond the original car-centric shape: `condition`,
-  `seriesName` / `seriesNumber` (brand-specific wave/card number — e.g. Hot Wheels "Factory
-  Fresh #3/10"), `chase` (generic stand-in for brand-specific rare-variant flags like Treasure
+  `seriesNumber` (position within the Series as printed by the brand, e.g. "10/10"; the Series
+  itself is a shared `Series` reference), `chase` (generic stand-in for brand-specific rare-variant flags like Treasure
   Hunt), `purchasePrice` / `purchaseDate` / `purchasedFrom`, `notes`, and `photoUrl`.
 - A photo upload endpoint (`POST /models/{id}/photo`, multipart) storing to local disk for now
   (`PhotoStorageService`) — swap for S3/GCS later without touching controllers or the schema.
@@ -53,7 +53,7 @@ Before this can work against real accounts you'll need to set:
 ## Known gaps / next steps
 
 - No pagination or filtering on `/models` yet — fine at personal-collection scale, worth adding
-  filters (by automaker/brand/collection/scale) once the app needs to browse a large collection.
+  filters (by automaker/brand/series/scale) once the app needs to browse a large collection.
 - Photo storage is local disk only; fine for a single-instance deployment, not for anything
   scaled horizontally or ephemeral (e.g. most PaaS containers) — move to object storage before
   deploying anywhere the filesystem isn't persistent.

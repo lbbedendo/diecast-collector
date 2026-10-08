@@ -3,10 +3,10 @@ package com.diecastcollector.api.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
-/** A named, dated set a model can belong to (e.g. a "Factory Fresh" Hot Wheels series year). */
+/** A named group of models a Brand releases together in a given year (e.g. "HW Starting Grid" 2026). */
 @Entity
-@Table(name = "collection")
-public class Collection {
+@Table(name = "series")
+public class Series {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,13 +19,13 @@ public class Collection {
     @Column(name = "year")
     private Integer year;
 
-    public Collection() {}
+    public Series() {}
 
-    public Collection(Long id) {
+    public Series(Long id) {
         this.id = id;
     }
 
-    public Collection(String name, Integer year) {
+    public Series(String name, Integer year) {
         this.name = name;
         this.year = year;
     }

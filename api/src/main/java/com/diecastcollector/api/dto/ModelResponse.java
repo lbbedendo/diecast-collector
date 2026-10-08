@@ -13,7 +13,6 @@ public record ModelResponse(
         ModelScale scale,
         String color,
         ModelCondition condition,
-        String seriesName,
         String seriesNumber,
         boolean chase,
         BigDecimal purchasePrice,
@@ -23,7 +22,7 @@ public record ModelResponse(
         String photoUrl,
         AutomakerResponse automaker,
         BrandResponse brand,
-        CollectionResponse collection) {
+        SeriesResponse series) {
 
     public static ModelResponse from(Model model) {
         return new ModelResponse(
@@ -33,7 +32,6 @@ public record ModelResponse(
                 model.getScale(),
                 model.getColor(),
                 model.getCondition(),
-                model.getSeriesName(),
                 model.getSeriesNumber(),
                 model.isChase(),
                 model.getPurchasePrice(),
@@ -43,6 +41,6 @@ public record ModelResponse(
                 model.getPhotoUrl(),
                 model.getAutomaker() != null ? AutomakerResponse.from(model.getAutomaker()) : null,
                 model.getBrand() != null ? BrandResponse.from(model.getBrand()) : null,
-                model.getCollection() != null ? CollectionResponse.from(model.getCollection()) : null);
+                model.getSeries() != null ? SeriesResponse.from(model.getSeries()) : null);
     }
 }

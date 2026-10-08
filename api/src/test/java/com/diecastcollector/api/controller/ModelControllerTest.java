@@ -7,10 +7,10 @@ import com.diecastcollector.api.dto.AutomakerRequest;
 import com.diecastcollector.api.dto.AutomakerResponse;
 import com.diecastcollector.api.dto.BrandRequest;
 import com.diecastcollector.api.dto.BrandResponse;
-import com.diecastcollector.api.dto.CollectionRequest;
-import com.diecastcollector.api.dto.CollectionResponse;
 import com.diecastcollector.api.dto.ModelRequest;
 import com.diecastcollector.api.dto.ModelResponse;
+import com.diecastcollector.api.dto.SeriesRequest;
+import com.diecastcollector.api.dto.SeriesResponse;
 import com.diecastcollector.api.enums.ModelCondition;
 import com.diecastcollector.api.enums.ModelScale;
 import java.math.BigDecimal;
@@ -43,11 +43,11 @@ class ModelControllerTest extends AbstractIntegrationTest {
         assertThat(response.getBody().name()).isEqualTo("Ferrari 458 Italia");
         assertThat(response.getBody().scale()).isEqualTo(ModelScale.SCALE_1_64);
         assertThat(response.getBody().condition()).isEqualTo(ModelCondition.MINT);
-        // The create response's nested automaker/brand/collection are bare id references (not
+        // The create response's nested automaker/brand/series are bare id references (not
         // hydrated from the DB, unlike GET's @EntityGraph fetch — see fetchModel() below).
         assertThat(response.getBody().automaker().id()).isEqualTo(request.automakerId());
         assertThat(response.getBody().brand().id()).isEqualTo(request.brandId());
-        assertThat(response.getBody().collection().id()).isEqualTo(request.collectionId());
+        assertThat(response.getBody().series().id()).isEqualTo(request.seriesId());
     }
 
     @Test
@@ -62,7 +62,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
         // Unlike the create response, GET fully hydrates the nested entities (@EntityGraph fetch).
         assertThat(byId.getBody().automaker().name()).startsWith("Ferrari-");
         assertThat(byId.getBody().brand().name()).startsWith("Hot Wheels-");
-        assertThat(byId.getBody().collection().name()).startsWith("Factory Fresh-");
+        assertThat(byId.getBody().series().name()).startsWith("HW Starting Grid-");
 
         ResponseEntity<ModelResponse[]> all = restTemplate.exchange(
                 "/models", HttpMethod.GET, new HttpEntity<>(headers), ModelResponse[].class);
@@ -92,7 +92,6 @@ class ModelControllerTest extends AbstractIntegrationTest {
                 created.scale(),
                 "Yellow",
                 ModelCondition.SEALED,
-                created.seriesName(),
                 created.seriesNumber(),
                 true,
                 created.purchasePrice(),
@@ -101,7 +100,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
                 "Mint on card",
                 created.automaker().id(),
                 created.brand().id(),
-                created.collection().id());
+                created.series().id());
 
         ResponseEntity<ModelResponse> updated = restTemplate.exchange(
                 "/models/" + created.id(), HttpMethod.PUT, new HttpEntity<>(updateRequest, headers), ModelResponse.class);
@@ -133,7 +132,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
     }
 
     private ModelRequest modelRequest(HttpHeaders headers, String name) {
-        // automaker/brand/collection names are globally unique, so each call needs its own —
+        // automaker/brand names are globally unique, so each call needs its own —
         // reusing a fixed name here would collide across test methods (and test classes, since
         // they share one database) the second time it's created.
         String unique = UUID.randomUUID().toString();
@@ -153,12 +152,12 @@ class ModelControllerTest extends AbstractIntegrationTest {
                         BrandResponse.class)
                 .getBody()
                 .id();
-        Long collectionId = restTemplate
+        Long seriesId = restTemplate
                 .exchange(
-                        "/collections",
+                        "/series",
                         HttpMethod.POST,
-                        new HttpEntity<>(new CollectionRequest("Factory Fresh-" + unique, 2024), headers),
-                        CollectionResponse.class)
+                        new HttpEntity<>(new SeriesRequest("HW Starting Grid-" + unique, 2024), headers),
+                        SeriesResponse.class)
                 .getBody()
                 .id();
 
@@ -168,7 +167,6 @@ class ModelControllerTest extends AbstractIntegrationTest {
                 ModelScale.SCALE_1_64,
                 "Red",
                 ModelCondition.MINT,
-                "Factory Fresh",
                 "3/10",
                 false,
                 new BigDecimal("12.99"),
@@ -177,7 +175,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
                 "Great find",
                 automakerId,
                 brandId,
-                collectionId);
+                seriesId);
     }
 
     private ModelResponse create(HttpHeaders headers, ModelRequest request) {

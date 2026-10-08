@@ -38,11 +38,7 @@ public class Model {
     @Enumerated(EnumType.STRING)
     private ModelCondition condition;
 
-    /** Brand-specific series/wave name, e.g. Hot Wheels "Factory Fresh" or Matchbox "Moving Parts". */
-    @Column(name = "series_name")
-    private String seriesName;
-
-    /** Brand-specific catalog/collector number printed on the card, distinct from our own DB id. */
+    /** Position within the Series as printed by the Brand, kept as written (e.g. "10/10"). */
     @Column(name = "series_number", length = 50)
     private String seriesNumber;
 
@@ -70,8 +66,8 @@ public class Model {
     private Automaker automaker;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "collection_id")
-    private Collection collection;
+    @JoinColumn(name = "series_id")
+    private Series series;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id")
@@ -157,14 +153,6 @@ public class Model {
         this.condition = condition;
     }
 
-    public String getSeriesName() {
-        return seriesName;
-    }
-
-    public void setSeriesName(String seriesName) {
-        this.seriesName = seriesName;
-    }
-
     public String getSeriesNumber() {
         return seriesNumber;
     }
@@ -229,12 +217,12 @@ public class Model {
         this.automaker = automaker;
     }
 
-    public Collection getCollection() {
-        return collection;
+    public Series getSeries() {
+        return series;
     }
 
-    public void setCollection(Collection collection) {
-        this.collection = collection;
+    public void setSeries(Series series) {
+        this.series = series;
     }
 
     public Brand getBrand() {

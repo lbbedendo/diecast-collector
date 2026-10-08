@@ -9,7 +9,7 @@ data class Automaker(val id: Long, val name: String)
 data class Brand(val id: Long, val name: String)
 
 @Serializable
-data class Collection(val id: Long, val name: String)
+data class Series(val id: Long, val name: String, val year: Int?)
 
 @Serializable
 data class DiecastModel(
@@ -17,7 +17,7 @@ data class DiecastModel(
     val name: String,
     val automaker: Automaker?,
     val brand: Brand,
-    val collection: Collection?,
+    val series: Series?,
     val scale: String?,
     val condition: String?,
     val yearReleased: Int?,
@@ -31,7 +31,7 @@ data class ModelRequest(
     val name: String,
     val automakerId: Long?,
     val brandId: Long,
-    val collectionId: Long?,
+    val seriesId: Long?,
     val scale: String?,
     val condition: String?,
     val yearReleased: Int?,

@@ -2,10 +2,10 @@ package com.diecastcollector.app.network
 
 import com.diecastcollector.app.model.Automaker
 import com.diecastcollector.app.model.Brand
-import com.diecastcollector.app.model.Collection
 import com.diecastcollector.app.model.DiecastModel
 import com.diecastcollector.app.model.ModelRequest
 import com.diecastcollector.app.model.PhotoUploadResponse
+import com.diecastcollector.app.model.Series
 import com.diecastcollector.app.model.SocialLoginRequest
 import com.diecastcollector.app.model.AuthResponse
 import io.ktor.client.HttpClient
@@ -99,6 +99,6 @@ class DiecastApi(
     suspend fun getBrands(): List<Brand> =
         client.get("$baseUrl/brands") { authorized() }.body()
 
-    suspend fun getCollections(): List<Collection> =
-        client.get("$baseUrl/collections") { authorized() }.body()
+    suspend fun getSeries(): List<Series> =
+        client.get("$baseUrl/series") { authorized() }.body()
 }

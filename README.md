@@ -30,12 +30,12 @@ cd app                                                 # open in Android Studio,
 
 A `Model` is a single diecast piece in someone's collection. It belongs to the `User` created on
 their first social login, and has many-to-one references to an `Automaker` (the real-world car
-maker, e.g. Honda), a `Brand` (the diecast maker, e.g. Hot Wheels) and a `Collection`. Automakers,
-brands and collections are shared across all users; models are scoped to their owner.
+maker, e.g. Honda), a `Brand` (the diecast maker, e.g. Hot Wheels) and a `Series` (e.g. "HW Starting Grid"
+2026). Automakers, brands and series are shared across all users; models are scoped to their owner.
 
 Brands differ in *how they describe a piece*, so `Model` uses generic fields rather than
-brand-specific ones: `condition`, `seriesName` / `seriesNumber` (a brand's own wave/card
-numbering), a `chase` flag standing in for brand-specific "rare variant" names (Treasure Hunt,
+brand-specific ones: `condition`, `seriesNumber` (the piece's position in its Series as
+printed, e.g. "10/10"), a `chase` flag standing in for brand-specific "rare variant" names (Treasure Hunt,
 Super, Premium, ...), plus `purchasePrice` / `purchaseDate` / `purchasedFrom`, `notes`, and
 `photoUrl` for the camera-capture flow. A Hot Wheels, Matchbox, or California Collectibles piece
 all use the same fields.

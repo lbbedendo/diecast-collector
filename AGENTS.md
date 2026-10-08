@@ -39,8 +39,8 @@ cd api
   `@BeforeAll`/`@AfterAll` start/stop calls back in — with multiple test classes sharing that
   static field, per-class lifecycle methods stop and restart the *same* container between
   classes, and the restart races new connections (`ConnectException`, hard to diagnose).
-- `automaker.name`, `brand.name`, and `collection.name` all have **unique** constraints in
-  `V1__init.sql`, and (unlike `Model`) none of these three are scoped per-user. Since the test DB
+- `automaker.name` and `brand.name` have **unique** constraints in `V1__init.sql`, and (unlike
+  `Model`) neither they nor `series` are scoped per-user. Since the test DB
   now persists across the whole suite (see above), never hardcode a fixed name for these in a
   test — two test methods (or two test classes) creating `"Ferrari"` will collide the second
   time. Suffix a `UUID.randomUUID()` per test invocation instead.
@@ -56,7 +56,7 @@ cd api
   `spring-boot-restclient` on the test classpath, plus `@AutoConfigureTestRestTemplate` (already on
   `AbstractIntegrationTest`). Missing `spring-boot-restclient` fails every test at context load with
   `NoClassDefFoundError: org/springframework/boot/restclient/RestTemplateBuilder`.
-- `POST /models` returns nested `automaker`/`brand`/`collection` as bare `{id}` references, not
+- `POST /models` returns nested `automaker`/`brand`/`series` as bare `{id}` references, not
   fully hydrated — `ModelService.create()` never re-fetches them after save. `GET /models/{id}`
   *does* fully hydrate them via `@EntityGraph`. Don't assume the create response gives you names.
 - `SecurityConfig` permits `/error` explicitly, and that's load-bearing: when a request hits a
@@ -100,6 +100,10 @@ cd app
   Kotlin 2.0.20's Gradle plugin doesn't support Gradle 9 (`NoClassDefFoundError:
   DefaultArtifactPublicationSet` when configuring `iosX64()` if you bump the wrapper past it). If
   you upgrade one, check compatibility with the other before assuming a sync failure is your code.
+- Kotlin 2.0.20's Gradle plugin can't parse a Java 25 version string: with JDK 25 as the shell's
+  default (which `api/` needs), `./gradlew :composeApp:assembleDebug` fails with the bare message
+  `What went wrong: 25.0.4`. Build `app/` with JDK 21 instead, e.g.
+  `JAVA_HOME=~/.sdkman/candidates/java/21.0.12+1.1-tem ./gradlew :composeApp:assembleDebug`.
 - If `./gradlew` is missing from `app/` (it's checked in now, but if it's ever deleted): Android
   Studio's own Gradle Tooling API doesn't need the wrapper script to sync, only
   `gradle-wrapper.properties` — but the terminal does. Regenerate with whatever Gradle Android
@@ -141,6 +145,6 @@ cd app
 - Don't add default values back into secrets (`APP_JWT_SECRET`, `GOOGLE_CLIENT_ID`,
   `APPLE_CLIENT_ID`) — they were deliberately removed from `application.yml`.
 - Multi-tenancy matters: every `Model` read/write must stay scoped to `owner_id` /
-  `CurrentUser.id()`. `Automaker`/`Brand`/`Collection` are intentionally global/shared, not
+  `CurrentUser.id()`. `Automaker`/`Brand`/`Series` are intentionally global/shared, not
   per-user — don't add ownership scoping to those without discussing it first (it'd be a real
   product change, not a bug fix).
