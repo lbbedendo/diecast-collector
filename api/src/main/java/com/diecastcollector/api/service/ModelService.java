@@ -65,6 +65,7 @@ public class ModelService {
         model.setModelYear(request.modelYear());
         model.setScale(request.scale());
         model.setColor(request.color());
+        model.setPackaging(request.packaging());
         model.setCondition(request.condition());
         model.setSeriesNumber(request.seriesNumber());
         model.setChase(request.chase());

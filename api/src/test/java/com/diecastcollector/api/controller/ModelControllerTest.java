@@ -12,9 +12,11 @@ import com.diecastcollector.api.dto.ModelResponse;
 import com.diecastcollector.api.dto.SeriesRequest;
 import com.diecastcollector.api.dto.SeriesResponse;
 import com.diecastcollector.api.enums.ModelCondition;
+import com.diecastcollector.api.enums.ModelPackaging;
 import com.diecastcollector.api.enums.ModelScale;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,8 @@ class ModelControllerTest extends AbstractIntegrationTest {
         assertThat(response.getBody().id()).isNotNull();
         assertThat(response.getBody().name()).isEqualTo("Ferrari 458 Italia");
         assertThat(response.getBody().scale()).isEqualTo(ModelScale.SCALE_1_64);
+        // Packaging and Condition are independent: a loose diecast can still be mint.
+        assertThat(response.getBody().packaging()).isEqualTo(ModelPackaging.LOOSE);
         assertThat(response.getBody().condition()).isEqualTo(ModelCondition.MINT);
         // The create response's nested automaker/series are bare id references (not
         // hydrated from the DB, unlike GET's @EntityGraph fetch — see fetchModel() below).
@@ -91,7 +95,8 @@ class ModelControllerTest extends AbstractIntegrationTest {
                 created.modelYear(),
                 created.scale(),
                 "Yellow",
-                ModelCondition.SEALED,
+                ModelPackaging.SEALED,
+                ModelCondition.POOR,
                 created.seriesNumber(),
                 true,
                 created.purchasePrice(),
@@ -107,13 +112,29 @@ class ModelControllerTest extends AbstractIntegrationTest {
         assertThat(updated.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(updated.getBody().name()).isEqualTo("Lamborghini Huracan EVO");
         assertThat(updated.getBody().color()).isEqualTo("Yellow");
-        assertThat(updated.getBody().condition()).isEqualTo(ModelCondition.SEALED);
+        assertThat(updated.getBody().packaging()).isEqualTo(ModelPackaging.SEALED);
+        assertThat(updated.getBody().condition()).isEqualTo(ModelCondition.POOR);
         assertThat(updated.getBody().chase()).isTrue();
 
         ResponseEntity<ModelResponse> refetched = restTemplate.exchange(
                 "/models/" + created.id(), HttpMethod.GET, new HttpEntity<>(headers), ModelResponse.class);
         assertThat(refetched.getBody().name()).isEqualTo("Lamborghini Huracan EVO");
         assertThat(refetched.getBody().chase()).isTrue();
+        assertThat(refetched.getBody().packaging()).isEqualTo(ModelPackaging.SEALED);
+        assertThat(refetched.getBody().condition()).isEqualTo(ModelCondition.POOR);
+    }
+
+    @Test
+    void packagingValueIsRejectedAsCondition() {
+        var headers = authHeaders();
+
+        // SEALED/LOOSE used to be Condition values; they're Packaging now.
+        ResponseEntity<Object> response = restTemplate.exchange(
+                "/models",
+                HttpMethod.POST,
+                new HttpEntity<>(Map.of("name", "Datsun 510", "condition", "SEALED"), headers),
+                Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -165,6 +186,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
                 2015,
                 ModelScale.SCALE_1_64,
                 "Red",
+                ModelPackaging.LOOSE,
                 ModelCondition.MINT,
                 "3/10",
                 false,

@@ -2,6 +2,7 @@ package com.diecastcollector.api.dto;
 
 import com.diecastcollector.api.domain.Model;
 import com.diecastcollector.api.enums.ModelCondition;
+import com.diecastcollector.api.enums.ModelPackaging;
 import com.diecastcollector.api.enums.ModelScale;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ public record ModelResponse(
         Integer modelYear,
         ModelScale scale,
         String color,
+        ModelPackaging packaging,
         ModelCondition condition,
         String seriesNumber,
         boolean chase,
@@ -30,6 +32,7 @@ public record ModelResponse(
                 model.getModelYear(),
                 model.getScale(),
                 model.getColor(),
+                model.getPackaging(),
                 model.getCondition(),
                 model.getSeriesNumber(),
                 model.isChase(),

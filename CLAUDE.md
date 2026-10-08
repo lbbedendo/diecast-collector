@@ -75,7 +75,7 @@ with no ownership — don't add per-user scoping to those without it being a del
 decision. `Model` has `@ManyToOne` references to `Automaker` and `Series` (each optional) but
 **not** to `Brand`: a Model's Brand is its Series' Brand (ADR-0003), and a `Series` is unique by
 Brand + name + year. Model also has brand-agnostic fields
-(`condition`, `seriesNumber`, `chase`, `purchasePrice`/`purchaseDate`/`purchasedFrom`,
+(`packaging`/`condition`, `seriesNumber`, `chase`, `purchasePrice`/`purchaseDate`/`purchasedFrom`,
 `notes`, `photoUrl`) so any diecast brand's pieces fit the same schema.
 
 **Auth is two-layer, not one JWT:** the mobile app signs in with the native Google/Apple SDK to

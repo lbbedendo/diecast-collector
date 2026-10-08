@@ -24,7 +24,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.diecastcollector.app.AppUiState
+import com.diecastcollector.app.model.Condition
 import com.diecastcollector.app.model.ModelRequest
+import com.diecastcollector.app.model.Packaging
 import com.diecastcollector.app.model.Series
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,7 +38,8 @@ fun ModelEditScreen(
 ) {
     var name by remember { mutableStateOf("") }
     var scale by remember { mutableStateOf("") }
-    var condition by remember { mutableStateOf("") }
+    var packaging by remember { mutableStateOf<Packaging?>(null) }
+    var condition by remember { mutableStateOf<Condition?>(null) }
     var color by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
     var selectedAutomakerId by remember { mutableStateOf<Long?>(null) }
@@ -75,11 +78,18 @@ fun ModelEditScreen(
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
         )
 
-        OutlinedTextField(
-            value = condition,
-            onValueChange = { condition = it },
-            label = { Text("Condition") },
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+        LabeledPicker(
+            label = "Packaging",
+            options = Packaging.entries.map { it to it.label },
+            selectedId = packaging,
+            onSelect = { packaging = it }
+        )
+
+        LabeledPicker(
+            label = "Condition",
+            options = Condition.entries.map { it to it.label },
+            selectedId = condition,
+            onSelect = { condition = it }
         )
 
         OutlinedTextField(
@@ -105,7 +115,8 @@ fun ModelEditScreen(
                             automakerId = selectedAutomakerId,
                             seriesId = selectedSeriesId,
                             scale = scale.ifBlank { null },
-                            condition = condition.ifBlank { null },
+                            packaging = packaging,
+                            condition = condition,
                             yearReleased = null,
                             color = color.ifBlank { null },
                             notes = notes.ifBlank { null }
@@ -124,11 +135,11 @@ fun ModelEditScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LabeledPicker(
+private fun <T> LabeledPicker(
     label: String,
-    options: List<Pair<Long, String>>,
-    selectedId: Long?,
-    onSelect: (Long) -> Unit
+    options: List<Pair<T, String>>,
+    selectedId: T?,
+    onSelect: (T) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selectedText = options.firstOrNull { it.first == selectedId }?.second ?: ""
