@@ -43,7 +43,9 @@ cd api
   `Model`) neither they nor `series` are scoped per-user. Since the test DB
   now persists across the whole suite (see above), never hardcode a fixed name for these in a
   test — two test methods (or two test classes) creating `"Ferrari"` will collide the second
-  time. Suffix a `UUID.randomUUID()` per test invocation instead.
+  time. Suffix a `UUID.randomUUID()` per test invocation instead. This now applies even to a
+  single test on a fresh DB: `V6__seed_automakers_and_brands.sql` seeds ~270 real automakers and
+  ~90 brands (Ferrari, Hot Wheels, ...), so creating any of those names fails on the first try.
 - Any REST controller endpoint not explicitly listed in `SecurityConfig`'s `permitAll()` requires
   a bearer token. `AbstractIntegrationTest.authHeaders()` persists a throwaway `User` and mints a
   real token via `AppJwtService` — use it rather than calling endpoints unauthenticated.
