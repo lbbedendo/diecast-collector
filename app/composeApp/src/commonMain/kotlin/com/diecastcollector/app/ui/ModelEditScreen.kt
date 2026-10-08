@@ -14,6 +14,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -25,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.diecastcollector.app.AppUiState
@@ -33,12 +36,14 @@ import com.diecastcollector.app.model.ModelRequest
 import com.diecastcollector.app.model.Packaging
 import com.diecastcollector.app.model.Scale
 import com.diecastcollector.app.model.Series
+import com.diecastcollector.app.model.SeriesRequest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModelEditScreen(
     uiState: AppUiState,
     onSave: (ModelRequest) -> Unit,
+    onCreateSeries: suspend (SeriesRequest) -> Result<Series>,
     onCancel: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
@@ -51,11 +56,33 @@ fun ModelEditScreen(
     var notes by remember { mutableStateOf("") }
     var selectedAutomakerId by remember { mutableStateOf<Long?>(null) }
     var selectedSeriesId by remember { mutableStateOf<Long?>(null) }
+    var showNewSeries by remember { mutableStateOf(false) }
+    val newSeriesButtonFocus = remember { FocusRequester() }
+
+    if (showNewSeries) {
+        NewSeriesDialog(
+            brands = uiState.brands,
+            onCreate = onCreateSeries,
+            onCreated = { created ->
+                selectedSeriesId = created.id
+                showNewSeries = false
+            },
+            onDismiss = { showNewSeries = false }
+        )
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)
     ) {
         Text("New model")
+
+        // Automaker first: the Name that follows leaves it out ("F2004", not "Ferrari F2004").
+        SearchablePicker(
+            label = "Automaker",
+            options = uiState.automakers.map { it.id to it.name },
+            selectedId = selectedAutomakerId,
+            onSelect = { selectedAutomakerId = it }
+        )
 
         OutlinedTextField(
             value = name,
@@ -63,13 +90,6 @@ fun ModelEditScreen(
             label = { Text("Name") },
             placeholder = { Text("Vehicle name, without the automaker (e.g. F2004)") },
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
-        )
-
-        LabeledPicker(
-            label = "Automaker",
-            options = uiState.automakers.map { it.id to it.name },
-            selectedId = selectedAutomakerId,
-            onSelect = { selectedAutomakerId = it }
         )
 
         OutlinedTextField(
@@ -80,12 +100,30 @@ fun ModelEditScreen(
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
         )
 
-        LabeledPicker(
-            label = "Series",
-            options = uiState.series.map { it.id to seriesLabel(it) },
-            selectedId = selectedSeriesId,
-            onSelect = { selectedSeriesId = it }
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+        ) {
+            LabeledPicker(
+                label = "Series",
+                options = uiState.series.map { it.id to seriesLabel(it) },
+                selectedId = selectedSeriesId,
+                onSelect = { selectedSeriesId = it },
+                modifier = Modifier.weight(1f)
+            )
+            // Create a Series in place instead of leaving the form.
+            TextButton(
+                onClick = {
+                    // Park focus on this button: when the dialog closes, focus comes back here
+                    // instead of jumping to the first text field and reopening the keyboard.
+                    newSeriesButtonFocus.requestFocus()
+                    showNewSeries = true
+                },
+                modifier = Modifier.padding(start = 8.dp).focusRequester(newSeriesButtonFocus)
+            ) {
+                Text("+", style = MaterialTheme.typography.headlineSmall)
+            }
+        }
 
         LabeledPicker(
             label = "Scale",
@@ -164,7 +202,8 @@ private fun <T> LabeledPicker(
     label: String,
     options: List<Pair<T, String>>,
     selectedId: T?,
-    onSelect: (T) -> Unit
+    onSelect: (T) -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selectedText = options.firstOrNull { it.first == selectedId }?.second ?: ""
@@ -172,7 +211,7 @@ private fun <T> LabeledPicker(
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
-        modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+        modifier = modifier
     ) {
         OutlinedTextField(
             value = selectedText,

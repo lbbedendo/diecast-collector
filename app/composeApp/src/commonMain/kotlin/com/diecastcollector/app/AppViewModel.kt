@@ -2,9 +2,11 @@ package com.diecastcollector.app
 
 import com.diecastcollector.app.auth.TokenStorage
 import com.diecastcollector.app.model.Automaker
+import com.diecastcollector.app.model.Brand
 import com.diecastcollector.app.model.DiecastModel
 import com.diecastcollector.app.model.ModelRequest
 import com.diecastcollector.app.model.Series
+import com.diecastcollector.app.model.SeriesRequest
 import com.diecastcollector.app.model.SocialLoginRequest
 import com.diecastcollector.app.network.DiecastApi
 import com.diecastcollector.app.network.createHttpClient
@@ -17,6 +19,7 @@ data class AppUiState(
     val isLoading: Boolean = false,
     val models: List<DiecastModel> = emptyList(),
     val automakers: List<Automaker> = emptyList(),
+    val brands: List<Brand> = emptyList(),
     val series: List<Series> = emptyList(),
     val error: String? = null
 )
@@ -74,13 +77,23 @@ class AppViewModel(private val tokenStorage: TokenStorage) {
 
     suspend fun loadLookups() {
         runCatching {
-            api.getAutomakers() to api.getSeries()
-        }.onSuccess { (automakers, series) ->
-            _uiState.value = _uiState.value.copy(automakers = automakers, series = series)
+            Triple(api.getAutomakers(), api.getBrands(), api.getSeries())
+        }.onSuccess { (automakers, brands, series) ->
+            _uiState.value = _uiState.value.copy(automakers = automakers, brands = brands, series = series)
         }.onFailure { error ->
             _uiState.value = _uiState.value.copy(error = error.message)
         }
     }
+
+    /**
+     * Creates a Series from the Model form and adds it to the picker's options. The failure (e.g.
+     * a duplicate Series) is returned for the dialog to show, not put in the screen-wide error.
+     */
+    suspend fun createSeries(request: SeriesRequest): Result<Series> =
+        runCatching { api.createSeries(request) }
+            .onSuccess { created ->
+                _uiState.value = _uiState.value.copy(series = (_uiState.value.series + created).sortedBy { it.name })
+            }
 
     suspend fun createModel(request: ModelRequest): DiecastModel? =
         runCatching { api.createModel(request) }
