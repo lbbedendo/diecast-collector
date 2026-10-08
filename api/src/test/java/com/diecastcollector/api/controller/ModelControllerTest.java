@@ -43,10 +43,9 @@ class ModelControllerTest extends AbstractIntegrationTest {
         assertThat(response.getBody().name()).isEqualTo("Ferrari 458 Italia");
         assertThat(response.getBody().scale()).isEqualTo(ModelScale.SCALE_1_64);
         assertThat(response.getBody().condition()).isEqualTo(ModelCondition.MINT);
-        // The create response's nested automaker/brand/series are bare id references (not
+        // The create response's nested automaker/series are bare id references (not
         // hydrated from the DB, unlike GET's @EntityGraph fetch — see fetchModel() below).
         assertThat(response.getBody().automaker().id()).isEqualTo(request.automakerId());
-        assertThat(response.getBody().brand().id()).isEqualTo(request.brandId());
         assertThat(response.getBody().series().id()).isEqualTo(request.seriesId());
     }
 
@@ -61,8 +60,9 @@ class ModelControllerTest extends AbstractIntegrationTest {
         assertThat(byId.getBody().name()).isEqualTo("Porsche 911 GT3");
         // Unlike the create response, GET fully hydrates the nested entities (@EntityGraph fetch).
         assertThat(byId.getBody().automaker().name()).startsWith("Ferrari-");
-        assertThat(byId.getBody().brand().name()).startsWith("Hot Wheels-");
         assertThat(byId.getBody().series().name()).startsWith("HW Starting Grid-");
+        // A Model's Brand is its Series' Brand — there's no Brand on the Model itself.
+        assertThat(byId.getBody().series().brand().name()).startsWith("Hot Wheels-");
 
         ResponseEntity<ModelResponse[]> all = restTemplate.exchange(
                 "/models", HttpMethod.GET, new HttpEntity<>(headers), ModelResponse[].class);
@@ -99,7 +99,6 @@ class ModelControllerTest extends AbstractIntegrationTest {
                 created.purchasedFrom(),
                 "Mint on card",
                 created.automaker().id(),
-                created.brand().id(),
                 created.series().id());
 
         ResponseEntity<ModelResponse> updated = restTemplate.exchange(
@@ -156,7 +155,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
                 .exchange(
                         "/series",
                         HttpMethod.POST,
-                        new HttpEntity<>(new SeriesRequest("HW Starting Grid-" + unique, 2024), headers),
+                        new HttpEntity<>(new SeriesRequest(brandId, "HW Starting Grid-" + unique, 2024), headers),
                         SeriesResponse.class)
                 .getBody()
                 .id();
@@ -174,7 +173,6 @@ class ModelControllerTest extends AbstractIntegrationTest {
                 "Target",
                 "Great find",
                 automakerId,
-                brandId,
                 seriesId);
     }
 

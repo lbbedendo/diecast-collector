@@ -19,5 +19,4 @@ public record ModelRequest(
         String purchasedFrom,
         String notes,
         Long automakerId,
-        Long brandId,
         Long seriesId) {}

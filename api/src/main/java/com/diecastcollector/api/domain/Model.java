@@ -69,10 +69,6 @@ public class Model {
     @JoinColumn(name = "series_id")
     private Series series;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brand_id")
-    private Brand brand;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -223,14 +219,6 @@ public class Model {
 
     public void setSeries(Series series) {
         this.series = series;
-    }
-
-    public Brand getBrand() {
-        return brand;
-    }
-
-    public void setBrand(Brand brand) {
-        this.brand = brand;
     }
 
     public Instant getCreatedAt() {

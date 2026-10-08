@@ -17,7 +17,8 @@ _Avoid_: Garage, inventory
 
 **Model**:
 One physical diecast model a Collector owns. Owning the same diecast twice means two Models,
-each with its own condition and purchase details.
+each with its own condition and purchase details. A Model's Brand is the Brand of its Series; a
+Model with no Series has no known Brand.
 _Avoid_: Piece, item, car, copy, casting
 
 **Vehicle year**:
@@ -50,9 +51,9 @@ _Avoid_: Manufacturer, make
 ### How it was released
 
 **Series**:
-A named group of models one Brand releases together in a given year (e.g. Hot Wheels
+A named group of models one Brand releases together, usually in a given year (e.g. Hot Wheels
 "HW Starting Grid" 2026). The same name in another year, or from another Brand, is a different
-Series. A Series' year is the release year of its Models.
+Series. A Series' year, when known, is the release year of its Models.
 _Avoid_: Collection, line, wave, set
 
 **Series number**:

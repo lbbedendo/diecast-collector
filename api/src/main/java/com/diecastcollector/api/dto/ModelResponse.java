@@ -21,7 +21,6 @@ public record ModelResponse(
         String notes,
         String photoUrl,
         AutomakerResponse automaker,
-        BrandResponse brand,
         SeriesResponse series) {
 
     public static ModelResponse from(Model model) {
@@ -40,7 +39,6 @@ public record ModelResponse(
                 model.getNotes(),
                 model.getPhotoUrl(),
                 model.getAutomaker() != null ? AutomakerResponse.from(model.getAutomaker()) : null,
-                model.getBrand() != null ? BrandResponse.from(model.getBrand()) : null,
                 model.getSeries() != null ? SeriesResponse.from(model.getSeries()) : null);
     }
 }
