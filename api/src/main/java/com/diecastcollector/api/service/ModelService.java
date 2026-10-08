@@ -2,8 +2,8 @@ package com.diecastcollector.api.service;
 
 import com.diecastcollector.api.domain.Automaker;
 import com.diecastcollector.api.domain.Brand;
-import com.diecastcollector.api.domain.Collection;
 import com.diecastcollector.api.domain.Model;
+import com.diecastcollector.api.domain.Series;
 import com.diecastcollector.api.domain.User;
 import com.diecastcollector.api.dto.ModelRequest;
 import com.diecastcollector.api.exception.ResourceNotFoundException;
@@ -67,7 +67,6 @@ public class ModelService {
         model.setScale(request.scale());
         model.setColor(request.color());
         model.setCondition(request.condition());
-        model.setSeriesName(request.seriesName());
         model.setSeriesNumber(request.seriesNumber());
         model.setChase(request.chase());
         model.setPurchasePrice(request.purchasePrice());
@@ -76,7 +75,7 @@ public class ModelService {
         model.setNotes(request.notes());
         model.setAutomaker(request.automakerId() != null ? new Automaker(request.automakerId()) : null);
         model.setBrand(request.brandId() != null ? new Brand(request.brandId()) : null);
-        model.setCollection(request.collectionId() != null ? new Collection(request.collectionId()) : null);
+        model.setSeries(request.seriesId() != null ? new Series(request.seriesId()) : null);
     }
 
     private ResourceNotFoundException notFound(Long id) {

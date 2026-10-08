@@ -28,7 +28,7 @@ iOS.
 Real and working:
 - Shared data models, navigation, and screens (login → collection list → add/edit model)
 - The Ktor API client, wired to every `/auth`, `/models`, `/automakers`, `/brands`,
-  `/collections` endpoint on the API
+  `/series` endpoint on the API
 - Android token storage, and a real camera-capture flow using `ActivityResultContracts.TakePicture`
   + `FileProvider`
 

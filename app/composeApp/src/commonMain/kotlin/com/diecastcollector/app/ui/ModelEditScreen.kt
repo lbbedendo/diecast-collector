@@ -40,7 +40,7 @@ fun ModelEditScreen(
     var notes by remember { mutableStateOf("") }
     var selectedAutomakerId by remember { mutableStateOf<Long?>(null) }
     var selectedBrandId by remember { mutableStateOf<Long?>(null) }
-    var selectedCollectionId by remember { mutableStateOf<Long?>(null) }
+    var selectedSeriesId by remember { mutableStateOf<Long?>(null) }
 
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)
@@ -69,10 +69,10 @@ fun ModelEditScreen(
         )
 
         LabeledPicker(
-            label = "Collection",
-            options = uiState.collections.map { it.id to it.name },
-            selectedId = selectedCollectionId,
-            onSelect = { selectedCollectionId = it }
+            label = "Series",
+            options = uiState.series.map { it.id to (it.year?.let { year -> "${it.name} ($year)" } ?: it.name) },
+            selectedId = selectedSeriesId,
+            onSelect = { selectedSeriesId = it }
         )
 
         OutlinedTextField(
@@ -112,7 +112,7 @@ fun ModelEditScreen(
                             name = name,
                             automakerId = selectedAutomakerId,
                             brandId = brandId,
-                            collectionId = selectedCollectionId,
+                            seriesId = selectedSeriesId,
                             scale = scale.ifBlank { null },
                             condition = condition.ifBlank { null },
                             yearReleased = null,

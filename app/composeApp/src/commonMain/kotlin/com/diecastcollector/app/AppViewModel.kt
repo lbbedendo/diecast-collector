@@ -3,9 +3,9 @@ package com.diecastcollector.app
 import com.diecastcollector.app.auth.TokenStorage
 import com.diecastcollector.app.model.Automaker
 import com.diecastcollector.app.model.Brand
-import com.diecastcollector.app.model.Collection
 import com.diecastcollector.app.model.DiecastModel
 import com.diecastcollector.app.model.ModelRequest
+import com.diecastcollector.app.model.Series
 import com.diecastcollector.app.model.SocialLoginRequest
 import com.diecastcollector.app.network.DiecastApi
 import com.diecastcollector.app.network.createHttpClient
@@ -19,7 +19,7 @@ data class AppUiState(
     val models: List<DiecastModel> = emptyList(),
     val automakers: List<Automaker> = emptyList(),
     val brands: List<Brand> = emptyList(),
-    val collections: List<Collection> = emptyList(),
+    val series: List<Series> = emptyList(),
     val error: String? = null
 )
 
@@ -76,9 +76,9 @@ class AppViewModel(private val tokenStorage: TokenStorage) {
 
     suspend fun loadLookups() {
         runCatching {
-            Triple(api.getAutomakers(), api.getBrands(), api.getCollections())
-        }.onSuccess { (automakers, brands, collections) ->
-            _uiState.value = _uiState.value.copy(automakers = automakers, brands = brands, collections = collections)
+            Triple(api.getAutomakers(), api.getBrands(), api.getSeries())
+        }.onSuccess { (automakers, brands, series) ->
+            _uiState.value = _uiState.value.copy(automakers = automakers, brands = brands, series = series)
         }.onFailure { error ->
             _uiState.value = _uiState.value.copy(error = error.message)
         }

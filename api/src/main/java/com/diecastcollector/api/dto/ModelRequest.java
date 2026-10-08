@@ -12,7 +12,6 @@ public record ModelRequest(
         ModelScale scale,
         String color,
         ModelCondition condition,
-        String seriesName,
         String seriesNumber,
         boolean chase,
         BigDecimal purchasePrice,
@@ -21,4 +20,4 @@ public record ModelRequest(
         String notes,
         Long automakerId,
         Long brandId,
-        Long collectionId) {}
+        Long seriesId) {}
