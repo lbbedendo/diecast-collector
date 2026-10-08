@@ -15,6 +15,7 @@ status as `Superseded by ADR-NNNN`.
 | ADR | Title | Status |
 |---|---|---|
 | [0001](api/0001-migrate-to-spring-boot-4-and-java-25.md) | Migrate the API to Spring Boot 4.1 and Java 25 | Accepted |
+| [0002](api/0002-one-model-per-physical-copy.md) | One Model per physical copy, with no quantity field | Accepted |
 
 ## App
 
