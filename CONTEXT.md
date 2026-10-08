@@ -21,10 +21,22 @@ each with its own condition and purchase details. A Model's Brand is the Brand o
 Model with no Series has no known Brand.
 _Avoid_: Piece, item, car, copy, casting
 
+**Name**:
+The name of the vehicle a Model depicts, without its Automaker (e.g. "F2004" for a Ferrari
+F2004, "510" for a Datsun 510). A fictional vehicle uses the name its Brand gives it
+(e.g. "Bone Shaker"); an unidentified one gets the Collector's best description until it is
+identified. Every Model has one.
+_Avoid_: Title, casting name, packaging name
+
 **Vehicle year**:
 The year of the real-world vehicle a Model depicts (e.g. 2004 for a Ferrari F2004). Absent when
 the vehicle is fictional. Not the release year, which belongs to the Series.
 _Avoid_: Model year, year
+
+**Scale**:
+The size ratio of a Model to the vehicle it depicts, as the Brand states it (e.g. 1:64), not
+measured. Set per Model, since Series and Brands can mix scales.
+_Avoid_: Size
 
 ### State of a Model
 
