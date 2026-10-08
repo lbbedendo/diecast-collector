@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.diecastcollector.app.AppUiState
 import com.diecastcollector.app.model.ModelRequest
+import com.diecastcollector.app.model.Series
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +40,6 @@ fun ModelEditScreen(
     var color by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
     var selectedAutomakerId by remember { mutableStateOf<Long?>(null) }
-    var selectedBrandId by remember { mutableStateOf<Long?>(null) }
     var selectedSeriesId by remember { mutableStateOf<Long?>(null) }
 
     Column(
@@ -62,15 +62,8 @@ fun ModelEditScreen(
         )
 
         LabeledPicker(
-            label = "Brand",
-            options = uiState.brands.map { it.id to it.name },
-            selectedId = selectedBrandId,
-            onSelect = { selectedBrandId = it }
-        )
-
-        LabeledPicker(
             label = "Series",
-            options = uiState.series.map { it.id to (it.year?.let { year -> "${it.name} ($year)" } ?: it.name) },
+            options = uiState.series.map { it.id to seriesLabel(it) },
             selectedId = selectedSeriesId,
             onSelect = { selectedSeriesId = it }
         )
@@ -106,12 +99,10 @@ fun ModelEditScreen(
         Row(modifier = Modifier.padding(top = 24.dp)) {
             Button(
                 onClick = {
-                    val brandId = selectedBrandId ?: return@Button
                     onSave(
                         ModelRequest(
                             name = name,
                             automakerId = selectedAutomakerId,
-                            brandId = brandId,
                             seriesId = selectedSeriesId,
                             scale = scale.ifBlank { null },
                             condition = condition.ifBlank { null },
@@ -171,3 +162,8 @@ private fun LabeledPicker(
         }
     }
 }
+
+/** e.g. "Hot Wheels · HW Starting Grid (2026)" — name alone is ambiguous across Brands and years. */
+private fun seriesLabel(series: Series): String =
+    listOfNotNull(series.brand?.name, series.name).joinToString(" · ") +
+        (series.year?.let { " ($it)" } ?: "")

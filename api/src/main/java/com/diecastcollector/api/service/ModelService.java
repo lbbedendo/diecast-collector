@@ -1,7 +1,6 @@
 package com.diecastcollector.api.service;
 
 import com.diecastcollector.api.domain.Automaker;
-import com.diecastcollector.api.domain.Brand;
 import com.diecastcollector.api.domain.Model;
 import com.diecastcollector.api.domain.Series;
 import com.diecastcollector.api.domain.User;
@@ -74,7 +73,6 @@ public class ModelService {
         model.setPurchasedFrom(request.purchasedFrom());
         model.setNotes(request.notes());
         model.setAutomaker(request.automakerId() != null ? new Automaker(request.automakerId()) : null);
-        model.setBrand(request.brandId() != null ? new Brand(request.brandId()) : null);
         model.setSeries(request.seriesId() != null ? new Series(request.seriesId()) : null);
     }
 

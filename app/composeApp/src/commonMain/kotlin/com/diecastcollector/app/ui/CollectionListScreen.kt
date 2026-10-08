@@ -57,7 +57,8 @@ private fun ModelRow(model: DiecastModel, onDelete: () -> Unit) {
     ) {
         Column {
             Text(model.name)
-            Text("${model.brand.name}${model.automaker?.let { " · ${it.name}" } ?: ""}")
+            // A Model's Brand comes from its Series; a Model with no Series has no known Brand.
+            Text(listOfNotNull(model.series?.brand?.name, model.automaker?.name).joinToString(" · "))
         }
         TextButton(onClick = onDelete) { Text("Delete") }
     }

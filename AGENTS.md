@@ -56,9 +56,9 @@ cd api
   `spring-boot-restclient` on the test classpath, plus `@AutoConfigureTestRestTemplate` (already on
   `AbstractIntegrationTest`). Missing `spring-boot-restclient` fails every test at context load with
   `NoClassDefFoundError: org/springframework/boot/restclient/RestTemplateBuilder`.
-- `POST /models` returns nested `automaker`/`brand`/`series` as bare `{id}` references, not
-  fully hydrated — `ModelService.create()` never re-fetches them after save. `GET /models/{id}`
-  *does* fully hydrate them via `@EntityGraph`. Don't assume the create response gives you names.
+- `POST /models` returns nested `automaker`/`series` as bare `{id}` references (`series.brand` is
+  `null`), not fully hydrated — `ModelService.create()` never re-fetches them after save.
+  `GET /models/{id}` *does* fully hydrate them, `series.brand` included, via `@EntityGraph`. Don't assume the create response gives you names.
 - `SecurityConfig` permits `/error` explicitly, and that's load-bearing: when a request hits a
   genuinely unmapped path, Boot's default error handling forwards it internally to `/error`, and
   *that* forwarded request is itself subject to `anyRequest().authenticated()` — without the

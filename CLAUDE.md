@@ -72,7 +72,9 @@ Spring Data JPA interfaces.
 **Data model:** `Model` is the only per-user resource (`owner_id`, scoped via `CurrentUser.id()`
 on every read/write). `Automaker`, `Brand`, and `Series` are shared/global reference data
 with no ownership — don't add per-user scoping to those without it being a deliberate product
-decision. `Model` has `@ManyToOne` references to all three, plus brand-agnostic fields
+decision. `Model` has `@ManyToOne` references to `Automaker` and `Series` (each optional) but
+**not** to `Brand`: a Model's Brand is its Series' Brand (ADR-0003), and a `Series` is unique by
+Brand + name + year. Model also has brand-agnostic fields
 (`condition`, `seriesNumber`, `chase`, `purchasePrice`/`purchaseDate`/`purchasedFrom`,
 `notes`, `photoUrl`) so any diecast brand's pieces fit the same schema.
 

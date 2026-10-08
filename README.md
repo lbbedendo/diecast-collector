@@ -30,8 +30,9 @@ cd app                                                 # open in Android Studio,
 
 A `Model` is a single diecast piece in someone's collection. It belongs to the `User` created on
 their first social login, and has many-to-one references to an `Automaker` (the real-world car
-maker, e.g. Honda), a `Brand` (the diecast maker, e.g. Hot Wheels) and a `Series` (e.g. "HW Starting Grid"
-2026). Automakers, brands and series are shared across all users; models are scoped to their owner.
+maker, e.g. Honda) and a `Series` (e.g. "HW Starting Grid" 2026). Each Series belongs to a `Brand`
+(the diecast maker, e.g. Hot Wheels), and that is where a Model's Brand comes from. Automakers,
+brands and series are shared across all users; models are scoped to their owner.
 
 Brands differ in *how they describe a piece*, so `Model` uses generic fields rather than
 brand-specific ones: `condition`, `seriesNumber` (the piece's position in its Series as
