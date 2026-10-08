@@ -70,4 +70,16 @@ class ModelRequestSerializationTest {
         assertEquals(Scale.SCALE_1_64, model.scale)
         assertEquals("1:64", model.scale?.label)
     }
+
+    @Test
+    fun seriesRequestMatchesTheApi() {
+        val json = apiJson.encodeToJsonElement(
+            SeriesRequest.serializer(), SeriesRequest(brandId = 7, name = "HW Starting Grid", year = null)
+        ).jsonObject
+
+        assertEquals(7, json.getValue("brandId").jsonPrimitive.content.toInt())
+        assertEquals("HW Starting Grid", json.getValue("name").jsonPrimitive.content)
+        // The year is optional on the API side; it's sent as an explicit null.
+        assertEquals("null", json.getValue("year").toString())
+    }
 }
