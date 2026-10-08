@@ -56,8 +56,8 @@ cd app
 ./gradlew :composeApp:testDebugUnitTest   # run commonTest unit tests on the JVM
 ```
 
-App tests live in `composeApp/src/commonTest` (so far only `ModelRequest` JSON encoding) and run
-on the JVM via `testDebugUnitTest`. Build `app/` with JDK 21, not 25 (see AGENTS.md). Only the
+App tests live in `composeApp/src/commonTest` (JSON encoding against the API's field names) and
+`androidUnitTest` (JVM-only checks, e.g. `ScaleParityTest`), and run via `testDebugUnitTest`. Build `app/` with JDK 21, not 25 (see AGENTS.md). Only the
 Android target builds outside macOS — iOS
 targets require Xcode and are expected to be skipped here. Open in Android Studio to run/debug
 interactively; see `app/README.md` for emulator networking (`10.0.2.2:8080` reaches the local API).

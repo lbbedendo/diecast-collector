@@ -104,6 +104,11 @@ cd app
   default (which `api/` needs), `./gradlew :composeApp:assembleDebug` fails with the bare message
   `What went wrong: 25.0.4`. Build `app/` with JDK 21 instead, e.g.
   `JAVA_HOME=~/.sdkman/candidates/java/21.0.12+1.1-tem ./gradlew :composeApp:assembleDebug`.
+- `ScaleParityTest` (`composeApp/src/androidUnitTest`) reads the API's `ModelScale.java` straight
+  from `../../api/src/...` to check the app's `Scale` enum matches it, because the two Gradle
+  projects can't reference each other. Adding a scale on one side fails that test until the other
+  side matches, which is intended. Moving or renaming `ModelScale.java` also breaks it: update the
+  path in the test.
 - If `./gradlew` is missing from `app/` (it's checked in now, but if it's ever deleted): Android
   Studio's own Gradle Tooling API doesn't need the wrapper script to sync, only
   `gradle-wrapper.properties` — but the terminal does. Regenerate with whatever Gradle Android
