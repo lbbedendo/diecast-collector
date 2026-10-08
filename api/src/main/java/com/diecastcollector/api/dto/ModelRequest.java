@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 public record ModelRequest(
         @NotEmpty String name,
-        Integer modelYear,
+        Integer vehicleYear,
         ModelScale scale,
         String color,
         ModelPackaging packaging,

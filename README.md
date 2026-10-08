@@ -35,10 +35,12 @@ maker, e.g. Honda) and a `Series` (e.g. "HW Starting Grid" 2026). Each Series be
 brands and series are shared across all users; models are scoped to their owner.
 
 Brands differ in *how they describe a piece*, so `Model` uses generic fields rather than
-brand-specific ones: `packaging` (sealed / opened / loose) and `condition` (mint to poor),
-`seriesNumber` (the piece's position in its Series as printed, e.g. "10/10"), a `chase` flag standing in for brand-specific "rare variant" names (Treasure Hunt,
-Super, Premium, ...), plus `purchasePrice` / `purchaseDate` / `purchasedFrom`, `notes`, and
-`photoUrl` for the camera-capture flow. A Hot Wheels, Matchbox, or California Collectibles piece
+brand-specific ones: `vehicleYear` (the real car's year, empty for fictional vehicles),
+`packaging` (sealed / opened / loose) and `condition` (mint to poor), `seriesNumber` (the piece's
+position in its Series as printed, e.g. "10/10"), a `chase` flag for rare variants a brand mixes
+into a Series (Treasure Hunt, Matchbox or CK chases; premium releases are their own Series, not
+chases), plus `purchasePrice` / `purchaseDate` / `purchasedFrom`, `notes`, and `photoUrl` for the
+camera-capture flow. A Hot Wheels, Matchbox, or California Collectibles piece
 all use the same fields.
 
 ## Known gaps (see the two READMEs for the full list)

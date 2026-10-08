@@ -43,6 +43,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().id()).isNotNull();
         assertThat(response.getBody().name()).isEqualTo("Ferrari 458 Italia");
+        assertThat(response.getBody().vehicleYear()).isEqualTo(2015);
         assertThat(response.getBody().scale()).isEqualTo(ModelScale.SCALE_1_64);
         // Packaging and Condition are independent: a loose diecast can still be mint.
         assertThat(response.getBody().packaging()).isEqualTo(ModelPackaging.LOOSE);
@@ -92,7 +93,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
 
         var updateRequest = new ModelRequest(
                 "Lamborghini Huracan EVO",
-                created.modelYear(),
+                created.vehicleYear(),
                 created.scale(),
                 "Yellow",
                 ModelPackaging.SEALED,
@@ -125,6 +126,20 @@ class ModelControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void vehicleYearIsOptional() {
+        var headers = authHeaders();
+
+        // Fictional vehicles have no Vehicle year.
+        ResponseEntity<ModelResponse> response = restTemplate.exchange(
+                "/models",
+                HttpMethod.POST,
+                new HttpEntity<>(Map.of("name", "Bone Shaker", "chase", false), headers),
+                ModelResponse.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getBody().vehicleYear()).isNull();
+    }
+
+    @Test
     void packagingValueIsRejectedAsCondition() {
         var headers = authHeaders();
 
@@ -132,7 +147,7 @@ class ModelControllerTest extends AbstractIntegrationTest {
         ResponseEntity<Object> response = restTemplate.exchange(
                 "/models",
                 HttpMethod.POST,
-                new HttpEntity<>(Map.of("name", "Datsun 510", "condition", "SEALED"), headers),
+                new HttpEntity<>(Map.of("name", "Datsun 510", "chase", false, "condition", "SEALED"), headers),
                 Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
