@@ -62,7 +62,7 @@ public class ModelService {
 
     private void applyRequest(Model model, ModelRequest request) {
         model.setName(request.name());
-        model.setModelYear(request.modelYear());
+        model.setVehicleYear(request.vehicleYear());
         model.setScale(request.scale());
         model.setColor(request.color());
         model.setPackaging(request.packaging());

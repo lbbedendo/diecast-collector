@@ -22,8 +22,8 @@ prototype in `diecast-collector-api` (left untouched as a reference).
   actually be lazy in Hibernate without bytecode enhancement).
 - New fields on `Model` to support brands beyond the original car-centric shape: `packaging`/`condition`,
   `seriesNumber` (position within the Series as printed by the brand, e.g. "10/10"; the Series
-  itself is a shared `Series` reference), `chase` (generic stand-in for brand-specific rare-variant flags like Treasure
-  Hunt), `purchasePrice` / `purchaseDate` / `purchasedFrom`, `notes`, and `photoUrl`.
+  itself is a shared `Series` reference), `chase` (a rare variant mixed into a Series, e.g. a Treasure
+  Hunt; premium releases are their own Series, not chases), `purchasePrice` / `purchaseDate` / `purchasedFrom`, `notes`, and `photoUrl`.
 - A photo upload endpoint (`POST /models/{id}/photo`, multipart) storing to local disk for now
   (`PhotoStorageService`) — swap for S3/GCS later without touching controllers or the schema.
 

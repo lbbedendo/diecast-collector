@@ -1,5 +1,7 @@
 package com.diecastcollector.app.model
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -37,12 +39,14 @@ data class DiecastModel(
     val scale: String?,
     val packaging: Packaging?,
     val condition: Condition?,
-    val yearReleased: Int?,
+    val chase: Boolean = false,
+    val vehicleYear: Int?,
     val color: String?,
     val notes: String?,
     val photoUrl: String?
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class ModelRequest(
     val name: String,
@@ -51,7 +55,10 @@ data class ModelRequest(
     val scale: String?,
     val packaging: Packaging?,
     val condition: Condition?,
-    val yearReleased: Int?,
+    // The API requires chase on every request, but apiJson omits default values unless told
+    // otherwise, so a plain `= false` would never be sent.
+    @EncodeDefault val chase: Boolean = false,
+    val vehicleYear: Int?,
     val color: String?,
     val notes: String?
 )

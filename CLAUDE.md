@@ -53,9 +53,12 @@ be running.
 cd app
 ./gradlew :composeApp:assembleDebug   # build a debug APK
 ./gradlew :composeApp:installDebug    # build + install on a connected device/emulator
+./gradlew :composeApp:testDebugUnitTest   # run commonTest unit tests on the JVM
 ```
 
-No automated tests exist on the app side yet. Only the Android target builds outside macOS — iOS
+App tests live in `composeApp/src/commonTest` (so far only `ModelRequest` JSON encoding) and run
+on the JVM via `testDebugUnitTest`. Build `app/` with JDK 21, not 25 (see AGENTS.md). Only the
+Android target builds outside macOS — iOS
 targets require Xcode and are expected to be skipped here. Open in Android Studio to run/debug
 interactively; see `app/README.md` for emulator networking (`10.0.2.2:8080` reaches the local API).
 

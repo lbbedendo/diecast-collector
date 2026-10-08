@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public record ModelResponse(
         Long id,
         String name,
-        Integer modelYear,
+        Integer vehicleYear,
         ModelScale scale,
         String color,
         ModelPackaging packaging,
@@ -29,7 +29,7 @@ public record ModelResponse(
         return new ModelResponse(
                 model.getId(),
                 model.getName(),
-                model.getModelYear(),
+                model.getVehicleYear(),
                 model.getScale(),
                 model.getColor(),
                 model.getPackaging(),

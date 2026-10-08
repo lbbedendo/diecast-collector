@@ -25,8 +25,9 @@ public class Model {
     @NotEmpty
     private String name;
 
-    @Column(name = "model_year")
-    private Integer modelYear;
+    /** Year of the real vehicle depicted (2004 for a Ferrari F2004); null for fictional vehicles. */
+    @Column(name = "vehicle_year")
+    private Integer vehicleYear;
 
     @Column(name = "scale", length = 10)
     @Enumerated(EnumType.STRING)
@@ -47,7 +48,11 @@ public class Model {
     @Column(name = "series_number", length = 50)
     private String seriesNumber;
 
-    /** Generic stand-in for brand-specific "rare variant" flags (Treasure Hunt, Super TH, Premium, etc). */
+    /**
+     * A rare variant the Brand mixes into a Series in small numbers (a Hot Wheels Treasure Hunt, a
+     * Matchbox or CK chase). Brand-specific tiers aren't distinguished. Premium releases are not
+     * chases; they belong to their own Series.
+     */
     @Column(name = "is_chase", nullable = false)
     private boolean chase = false;
 
@@ -122,12 +127,12 @@ public class Model {
         this.name = name;
     }
 
-    public Integer getModelYear() {
-        return modelYear;
+    public Integer getVehicleYear() {
+        return vehicleYear;
     }
 
-    public void setModelYear(Integer modelYear) {
-        this.modelYear = modelYear;
+    public void setVehicleYear(Integer vehicleYear) {
+        this.vehicleYear = vehicleYear;
     }
 
     public ModelScale getScale() {

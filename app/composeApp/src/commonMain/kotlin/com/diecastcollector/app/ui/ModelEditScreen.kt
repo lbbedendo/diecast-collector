@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -21,7 +23,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.diecastcollector.app.AppUiState
 import com.diecastcollector.app.model.Condition
@@ -38,8 +42,10 @@ fun ModelEditScreen(
 ) {
     var name by remember { mutableStateOf("") }
     var scale by remember { mutableStateOf("") }
+    var vehicleYear by remember { mutableStateOf("") }
     var packaging by remember { mutableStateOf<Packaging?>(null) }
     var condition by remember { mutableStateOf<Condition?>(null) }
+    var chase by remember { mutableStateOf(false) }
     var color by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
     var selectedAutomakerId by remember { mutableStateOf<Long?>(null) }
@@ -62,6 +68,14 @@ fun ModelEditScreen(
             options = uiState.automakers.map { it.id to it.name },
             selectedId = selectedAutomakerId,
             onSelect = { selectedAutomakerId = it }
+        )
+
+        OutlinedTextField(
+            value = vehicleYear,
+            onValueChange = { input -> vehicleYear = input.filter(Char::isDigit).take(4) },
+            label = { Text("Vehicle year (real car, e.g. 2004)") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
         )
 
         LabeledPicker(
@@ -92,6 +106,14 @@ fun ModelEditScreen(
             onSelect = { condition = it }
         )
 
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+        ) {
+            Checkbox(checked = chase, onCheckedChange = { chase = it })
+            Text("Chase (rare variant, e.g. a Treasure Hunt)")
+        }
+
         OutlinedTextField(
             value = color,
             onValueChange = { color = it },
@@ -117,7 +139,8 @@ fun ModelEditScreen(
                             scale = scale.ifBlank { null },
                             packaging = packaging,
                             condition = condition,
-                            yearReleased = null,
+                            chase = chase,
+                            vehicleYear = vehicleYear.toIntOrNull(),
                             color = color.ifBlank { null },
                             notes = notes.ifBlank { null }
                         )
