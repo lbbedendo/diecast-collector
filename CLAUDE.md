@@ -115,3 +115,17 @@ refresh or logout takes effect on the very next call with no extra wiring.
   credentials or an Xcode project that don't exist in this environment, not a code fix.
 - No pagination/filtering on `/models`, no refresh-token flow, local-disk-only photo storage.
 - Android has no launcher icon yet (manifest omits `android:icon`).
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues on `lbbedendo/diecast-collector` (via `gh`). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one root `CONTEXT.md`, with ADRs split per module under `docs/adr/api/` and `docs/adr/app/`. See `docs/agents/domain.md`.
