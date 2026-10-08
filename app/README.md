@@ -48,7 +48,7 @@ Android camera capture already works end-to-end.
 ## Model form fields
 
 The add/edit screen intentionally exposes the brand-agnostic fields added on the API side:
-condition, series name/number (a brand's own wave or card number), a generic "rare variant"
+packaging and condition (two separate pickers), series name/number (a brand's own wave or card number), a generic "rare variant"
 checkbox in place of any single brand's own naming (Treasure Hunt, Super, Premium, ...), and free
 text for notes — so cataloging a Hot Wheels, Matchbox, or California Collectibles piece uses the
 same form without brand-specific fields bolted on.

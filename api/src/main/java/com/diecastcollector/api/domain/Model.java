@@ -1,6 +1,7 @@
 package com.diecastcollector.api.domain;
 
 import com.diecastcollector.api.enums.ModelCondition;
+import com.diecastcollector.api.enums.ModelPackaging;
 import com.diecastcollector.api.enums.ModelScale;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -33,6 +34,10 @@ public class Model {
 
     @Column(name = "color")
     private String color;
+
+    @Column(name = "packaging", length = 20)
+    @Enumerated(EnumType.STRING)
+    private ModelPackaging packaging;
 
     @Column(name = "condition", length = 20)
     @Enumerated(EnumType.STRING)
@@ -139,6 +144,14 @@ public class Model {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public ModelPackaging getPackaging() {
+        return packaging;
+    }
+
+    public void setPackaging(ModelPackaging packaging) {
+        this.packaging = packaging;
     }
 
     public ModelCondition getCondition() {

@@ -1,6 +1,7 @@
 package com.diecastcollector.api.dto;
 
 import com.diecastcollector.api.enums.ModelCondition;
+import com.diecastcollector.api.enums.ModelPackaging;
 import com.diecastcollector.api.enums.ModelScale;
 import jakarta.validation.constraints.NotEmpty;
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ public record ModelRequest(
         Integer modelYear,
         ModelScale scale,
         String color,
+        ModelPackaging packaging,
         ModelCondition condition,
         String seriesNumber,
         boolean chase,

@@ -20,7 +20,7 @@ prototype in `diecast-collector-api` (left untouched as a reference).
   old mapping was semantically wrong — many models share one automaker/brand/collection — and,
   because the associations are nullable, a unidirectional `@OneToOne(fetch = LAZY)` can't
   actually be lazy in Hibernate without bytecode enhancement).
-- New fields on `Model` to support brands beyond the original car-centric shape: `condition`,
+- New fields on `Model` to support brands beyond the original car-centric shape: `packaging`/`condition`,
   `seriesNumber` (position within the Series as printed by the brand, e.g. "10/10"; the Series
   itself is a shared `Series` reference), `chase` (generic stand-in for brand-specific rare-variant flags like Treasure
   Hunt), `purchasePrice` / `purchaseDate` / `purchasedFrom`, `notes`, and `photoUrl`.
