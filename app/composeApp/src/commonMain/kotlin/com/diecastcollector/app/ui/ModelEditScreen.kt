@@ -31,6 +31,7 @@ import com.diecastcollector.app.AppUiState
 import com.diecastcollector.app.model.Condition
 import com.diecastcollector.app.model.ModelRequest
 import com.diecastcollector.app.model.Packaging
+import com.diecastcollector.app.model.Scale
 import com.diecastcollector.app.model.Series
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,7 +42,7 @@ fun ModelEditScreen(
     onCancel: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
-    var scale by remember { mutableStateOf("") }
+    var scale by remember { mutableStateOf<Scale?>(null) }
     var vehicleYear by remember { mutableStateOf("") }
     var packaging by remember { mutableStateOf<Packaging?>(null) }
     var condition by remember { mutableStateOf<Condition?>(null) }
@@ -85,11 +86,11 @@ fun ModelEditScreen(
             onSelect = { selectedSeriesId = it }
         )
 
-        OutlinedTextField(
-            value = scale,
-            onValueChange = { scale = it },
-            label = { Text("Scale (e.g. 1:64)") },
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+        LabeledPicker(
+            label = "Scale",
+            options = Scale.entries.map { it to it.label },
+            selectedId = scale,
+            onSelect = { scale = it }
         )
 
         LabeledPicker(
@@ -136,7 +137,7 @@ fun ModelEditScreen(
                             name = name,
                             automakerId = selectedAutomakerId,
                             seriesId = selectedSeriesId,
-                            scale = scale.ifBlank { null },
+                            scale = scale,
                             packaging = packaging,
                             condition = condition,
                             chase = chase,

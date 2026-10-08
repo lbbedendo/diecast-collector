@@ -14,7 +14,7 @@ class ModelRequestSerializationTest {
         name = "Ferrari F2004",
         automakerId = null,
         seriesId = null,
-        scale = null,
+        scale = Scale.SCALE_1_64,
         packaging = Packaging.SEALED,
         condition = Condition.MINT,
         vehicleYear = 2004,
@@ -41,8 +41,24 @@ class ModelRequestSerializationTest {
     fun fieldNamesMatchTheApi() {
         val json = apiJson.encodeToJsonElement(ModelRequest.serializer(), request()).jsonObject
 
+        // The API takes the enum name, not the "1:64" label the form shows.
+        assertEquals("SCALE_1_64", json.getValue("scale").jsonPrimitive.content)
         assertEquals("SEALED", json.getValue("packaging").jsonPrimitive.content)
         assertEquals("MINT", json.getValue("condition").jsonPrimitive.content)
         assertEquals(2004, json.getValue("vehicleYear").jsonPrimitive.content.toInt())
+    }
+
+    @Test
+    fun scaleReadsBackFromApiResponse() {
+        // Shape of GET /models/{id}: the API returns the enum name, which the app shows as "1:64".
+        val model = apiJson.decodeFromString(
+            DiecastModel.serializer(),
+            """{"id": 1, "name": "Ferrari F2004", "automaker": null, "series": null, "scale": "SCALE_1_64",
+               "packaging": null, "condition": null, "chase": false, "vehicleYear": 2004, "color": null,
+               "notes": null, "photoUrl": null}"""
+        )
+
+        assertEquals(Scale.SCALE_1_64, model.scale)
+        assertEquals("1:64", model.scale?.label)
     }
 }
