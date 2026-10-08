@@ -6,6 +6,7 @@ import com.diecastcollector.api.dto.UserResponse;
 import com.diecastcollector.api.enums.AuthProvider;
 import com.diecastcollector.api.repository.UserRepository;
 import com.diecastcollector.api.security.AppJwtService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
  * hit even if someone guesses the URL. Never set {@code APP_AUTH_DEV_LOGIN_ENABLED=true} outside
  * local development.
  */
+// Public: no bearer token needed (see SecurityConfig), so no padlock in Swagger UI.
+@SecurityRequirements
 @RestController
 @RequestMapping("/auth")
 @ConditionalOnProperty(prefix = "app.auth.dev-login", name = "enabled", havingValue = "true")

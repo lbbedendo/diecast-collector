@@ -66,6 +66,12 @@ cd api
   *that* forwarded request is itself subject to `anyRequest().authenticated()` — without the
   explicit permit, every 404 gets reported as a misleading 403 instead. Found via a test that hit
   an intentionally-unmapped path under a `permitAll()` prefix; nothing had exercised that before.
+- Swagger UI is at `/swagger-ui/index.html` (`/swagger-ui.html` redirects there). `OpenApiConfig`
+  requires the bearer JWT on **every** operation by default, which is what gives Swagger UI its
+  "Authorize" button. A public endpoint therefore needs two changes: its path in `SecurityConfig`'s
+  `permitAll()`, **and** an empty `@SecurityRequirements` on the controller (as on `AuthController`
+  and `PhotoController`). Otherwise the docs show a padlock on a route that doesn't need a token.
+  `SwaggerTest` checks `/auth/google` and `/photos/{filename}` stay public in the docs.
 - A local `docker compose up -d` Postgres can go stale across sessions: the named volume
   (`diecast-collector-data`) persists even after `docker compose down`, so if `V1__init.sql`
   changes after you've run `bootRun` once, the next `bootRun` fails with a Flyway checksum
