@@ -20,6 +20,11 @@ build) that happen to live in one repo.
 **Stack:** Java 25, Spring Boot 4.1, PostgreSQL 17 + Flyway, Spring Security (stateless JWT),
 Testcontainers 2.x for integration tests.
 
+**Selecting java version:** The java version can be selected with sdkman.
+```
+sdk use java 25.0.4-tem
+```
+
 **Build & test:**
 ```bash
 cd api
@@ -92,6 +97,13 @@ cd api
 **Stack:** Kotlin 2.0.20, Compose Multiplatform 1.7.0, AGP 8.13.2 (bumped from 8.5.2 by Android
 Studio's sync — the version in `libs.versions.toml` is the source of truth, not what's in a
 commit message), Gradle 8.13, Ktor client.
+
+**Selecting java version:** Gradle for `app/` must run on JDK 21, not the 25 that `api/` needs, so
+switch with sdkman before building (`sdk use` only affects the current shell). The bytecode target
+is Java 11 (`jvmTarget`/`sourceCompatibility`), independent of the JDK that runs Gradle.
+```
+sdk use java 21.0.12+1.1-tem
+```
 
 **Build & test:**
 ```bash
