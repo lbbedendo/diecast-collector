@@ -37,15 +37,20 @@ public class ModelController {
         return ModelResponse.from(modelService.getForOwner(id, currentUser.id()));
     }
 
+    // create/update re-read the model after their transaction: the entity they return points at
+    // bare `new Automaker(id)` / `new Series(id)` references (only the id set), which serialize
+    // with null names. Re-reading goes through the same @EntityGraph fetch as GET.
     @PostMapping
     public ResponseEntity<ModelResponse> create(@Valid @RequestBody ModelRequest request) {
-        var model = modelService.create(currentUser.id(), request);
+        var created = modelService.create(currentUser.id(), request);
+        var model = modelService.getForOwner(created.getId(), currentUser.id());
         return ResponseEntity.created(URI.create("/models/" + model.getId())).body(ModelResponse.from(model));
     }
 
     @PutMapping("/{id}")
     public ModelResponse update(@PathVariable Long id, @Valid @RequestBody ModelRequest request) {
-        return ModelResponse.from(modelService.update(id, currentUser.id(), request));
+        modelService.update(id, currentUser.id(), request);
+        return ModelResponse.from(modelService.getForOwner(id, currentUser.id()));
     }
 
     @PostMapping(value = "/{id}/photo", consumes = "multipart/form-data")
