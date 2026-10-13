@@ -113,7 +113,7 @@ class DiecastApi(
             setBody(request)
         }
         if (!response.status.isSuccess()) {
-            throw ApiException(apiErrorMessage(response.status.value, response.bodyAsText()))
+            throw ApiException(response.status.value, apiErrorMessage(response.status.value, response.bodyAsText()))
         }
         return response.body()
     }

@@ -21,7 +21,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Diecast Collector uses the camera to photograph the models in your collection.</string>
+	<string>O Diecast Collector usa a câmera para fotografar os modelos da sua coleção.</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UIRequiredDeviceCapabilities</key>
