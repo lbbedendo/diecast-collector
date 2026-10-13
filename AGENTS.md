@@ -20,6 +20,11 @@ build) that happen to live in one repo.
 **Stack:** Java 25, Spring Boot 4.1, PostgreSQL 17 + Flyway, Spring Security (stateless JWT),
 Testcontainers 2.x for integration tests.
 
+**Selecting java version:** The java version can be selected with sdkman.
+```
+sdk use java 25.0.4-tem
+```
+
 **Build & test:**
 ```bash
 cd api
@@ -58,9 +63,12 @@ cd api
   `spring-boot-restclient` on the test classpath, plus `@AutoConfigureTestRestTemplate` (already on
   `AbstractIntegrationTest`). Missing `spring-boot-restclient` fails every test at context load with
   `NoClassDefFoundError: org/springframework/boot/restclient/RestTemplateBuilder`.
-- `POST /models` returns nested `automaker`/`series` as bare `{id}` references (`series.brand` is
-  `null`), not fully hydrated — `ModelService.create()` never re-fetches them after save.
-  `GET /models/{id}` *does* fully hydrate them, `series.brand` included, via `@EntityGraph`. Don't assume the create response gives you names.
+- `ModelService.create()`/`update()` return an entity whose `automaker`/`series` are bare
+  `new Automaker(id)` / `new Series(id)` references (only the id set; `name` is `null`). Never
+  serialize that entity directly: `ModelController` re-reads the model with `getForOwner()` after
+  `create`/`update` so the response is hydrated through the same `@EntityGraph` as `GET`. Returning
+  the bare entity broke the mobile app, whose `Automaker.name`/`Series.name` are non-null — the
+  create succeeded but decoding its response failed. `ModelControllerTest` asserts the names.
 - `SecurityConfig` permits `/error` explicitly, and that's load-bearing: when a request hits a
   genuinely unmapped path, Boot's default error handling forwards it internally to `/error`, and
   *that* forwarded request is itself subject to `anyRequest().authenticated()` — without the
@@ -92,6 +100,13 @@ cd api
 **Stack:** Kotlin 2.0.20, Compose Multiplatform 1.7.0, AGP 8.13.2 (bumped from 8.5.2 by Android
 Studio's sync — the version in `libs.versions.toml` is the source of truth, not what's in a
 commit message), Gradle 8.13, Ktor client.
+
+**Selecting java version:** Gradle for `app/` must run on JDK 21, not the 25 that `api/` needs, so
+switch with sdkman before building (`sdk use` only affects the current shell). The bytecode target
+is Java 11 (`jvmTarget`/`sourceCompatibility`), independent of the JDK that runs Gradle.
+```
+sdk use java 21.0.12+1.1-tem
+```
 
 **Build & test:**
 ```bash

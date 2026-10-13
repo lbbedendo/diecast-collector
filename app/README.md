@@ -48,7 +48,9 @@ Android camera capture already works end-to-end.
 ## Model form fields
 
 The add screen uses only brand-agnostic fields, so a Hot Wheels, Matchbox, or California
-Collectibles piece goes through the same form: name, automaker, vehicle year (the real car's,
-optional), Series (shown as "Brand · Name (year)"), scale, packaging and condition (two separate
-pickers), a Chase checkbox (off by default), color, and notes. The API also accepts a Series
-number and purchase details, but the form doesn't expose them yet.
+Collectibles piece goes through the same form: automaker (type to filter the list; accents are
+ignored, so "skoda" finds Škoda), name (without the automaker), vehicle year (the real car's,
+optional), Series (shown as "Brand · Name (year)", with a "+" to create one in a dialog without
+leaving the form), scale, packaging and condition (two separate pickers), a Chase checkbox (off
+by default), color, and notes. The API also accepts a Series number and purchase details, but the
+form doesn't expose them yet.

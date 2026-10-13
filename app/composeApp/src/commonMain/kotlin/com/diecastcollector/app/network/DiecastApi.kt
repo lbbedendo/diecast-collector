@@ -6,6 +6,7 @@ import com.diecastcollector.app.model.DiecastModel
 import com.diecastcollector.app.model.ModelRequest
 import com.diecastcollector.app.model.PhotoUploadResponse
 import com.diecastcollector.app.model.Series
+import com.diecastcollector.app.model.SeriesRequest
 import com.diecastcollector.app.model.SocialLoginRequest
 import com.diecastcollector.app.model.AuthResponse
 import io.ktor.client.HttpClient
@@ -19,10 +20,12 @@ import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 
 /**
  * Talks to the diecast-collector-api backend.
@@ -101,4 +104,17 @@ class DiecastApi(
 
     suspend fun getSeries(): List<Series> =
         client.get("$baseUrl/series") { authorized() }.body()
+
+    /** Throws [ApiException] with the API's message, e.g. a 409 for a duplicate Series. */
+    suspend fun createSeries(request: SeriesRequest): Series {
+        val response = client.post("$baseUrl/series") {
+            authorized()
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
+        if (!response.status.isSuccess()) {
+            throw ApiException(apiErrorMessage(response.status.value, response.bodyAsText()))
+        }
+        return response.body()
+    }
 }

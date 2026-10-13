@@ -93,6 +93,9 @@ data class ModelRequest(
 )
 
 @Serializable
+data class SeriesRequest(val brandId: Long, val name: String, val year: Int?)
+
+@Serializable
 data class SocialLoginRequest(val provider: String, val idToken: String)
 
 @Serializable

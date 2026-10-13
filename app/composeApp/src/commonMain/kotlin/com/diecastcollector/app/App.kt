@@ -63,6 +63,7 @@ fun App(tokenStorage: TokenStorage) {
                             screen = Screen.List
                         }
                     },
+                    onCreateSeries = { request -> viewModel.createSeries(request) },
                     onCancel = { screen = Screen.List }
                 )
             }

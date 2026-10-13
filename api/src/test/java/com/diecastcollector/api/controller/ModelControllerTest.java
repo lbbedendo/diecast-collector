@@ -50,10 +50,13 @@ class ModelControllerTest extends AbstractIntegrationTest {
         // Packaging and Condition are independent: a loose diecast can still be mint.
         assertThat(response.getBody().packaging()).isEqualTo(ModelPackaging.LOOSE);
         assertThat(response.getBody().condition()).isEqualTo(ModelCondition.MINT);
-        // The create response's nested automaker/series are bare id references (not
-        // hydrated from the DB, unlike GET's @EntityGraph fetch — see fetchModel() below).
+        // The create response must be fully hydrated, same as GET: the mobile client decodes
+        // automaker.name / series.name as non-null, so bare `{id}` references broke it.
         assertThat(response.getBody().automaker().id()).isEqualTo(request.automakerId());
+        assertThat(response.getBody().automaker().name()).startsWith("Ferrari-");
         assertThat(response.getBody().series().id()).isEqualTo(request.seriesId());
+        assertThat(response.getBody().series().name()).startsWith("HW Starting Grid-");
+        assertThat(response.getBody().series().brand().name()).startsWith("Hot Wheels-");
     }
 
     @Test
@@ -118,6 +121,9 @@ class ModelControllerTest extends AbstractIntegrationTest {
         assertThat(updated.getBody().packaging()).isEqualTo(ModelPackaging.SEALED);
         assertThat(updated.getBody().condition()).isEqualTo(ModelCondition.POOR);
         assertThat(updated.getBody().chase()).isTrue();
+        // Same as create: the PUT response must carry the hydrated automaker/series too.
+        assertThat(updated.getBody().automaker().name()).startsWith("Ferrari-");
+        assertThat(updated.getBody().series().name()).startsWith("HW Starting Grid-");
 
         ResponseEntity<ModelResponse> refetched = restTemplate.exchange(
                 "/models/" + created.id(), HttpMethod.GET, new HttpEntity<>(headers), ModelResponse.class);
