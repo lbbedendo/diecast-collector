@@ -15,7 +15,8 @@ data class Series(val id: Long, val name: String, val year: Int?, val brand: Bra
 
 /**
  * Mirrors the API's `ModelScale` enum: the API accepts only these names, not labels like "1:64".
- * `ScaleParityTest` fails if the two lists drift apart.
+ * `ScaleParityTest` fails if the two lists drift apart. Labels are UI text (pt-BR), so "Outra"
+ * is the one label that differs from the API's.
  */
 @Serializable
 enum class Scale(val label: String) {
@@ -31,24 +32,24 @@ enum class Scale(val label: String) {
     SCALE_1_72("1:72"),
     SCALE_1_76("1:76"),
     SCALE_1_87("1:87"),
-    OTHER("Other")
+    OTHER("Outra")
 }
 
 /** Whether a Model is still in its original packaging (see CONTEXT.md). */
 @Serializable
 enum class Packaging(val label: String) {
-    SEALED("Sealed"),
-    OPENED("Opened (packaging kept)"),
-    LOOSE("Loose")
+    SEALED("Lacrado"),
+    OPENED("Aberto (embalagem guardada)"),
+    LOOSE("Loose (sem embalagem)")
 }
 
 /** The physical state of the diecast itself, independent of its [Packaging]. */
 @Serializable
 enum class Condition(val label: String) {
-    MINT("Mint"),
-    GOOD("Good"),
-    FAIR("Fair"),
-    POOR("Poor")
+    MINT("Mint (impecável)"),
+    GOOD("Bom"),
+    FAIR("Regular"),
+    POOR("Ruim")
 }
 
 @Serializable

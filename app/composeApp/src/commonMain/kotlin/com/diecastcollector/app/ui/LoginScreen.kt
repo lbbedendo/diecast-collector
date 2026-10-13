@@ -41,16 +41,16 @@ fun LoginScreen(
         // presenting UIViewController they need; the resulting SocialSignInResult is passed
         // here via onLogin.
         Button(onClick = { /* Wired to GoogleSignInLauncher by the platform entry point */ }, modifier = Modifier.padding(top = 24.dp)) {
-            Text("Sign in with Google")
+            Text("Entrar com o Google")
         }
         Button(onClick = { /* Wired to AppleSignInLauncher by the platform entry point */ }, modifier = Modifier.padding(top = 12.dp)) {
-            Text("Sign in with Apple")
+            Text("Entrar com a Apple")
         }
 
         // Only works against a local API started with APP_AUTH_DEV_LOGIN_ENABLED=true; a real
         // deployment has no /auth/dev route to call, so this is harmless to leave visible.
         OutlinedButton(onClick = onDevLogin, modifier = Modifier.padding(top = 24.dp)) {
-            Text("Dev login (local only)")
+            Text("Login de desenvolvimento (somente local)")
         }
     }
 }

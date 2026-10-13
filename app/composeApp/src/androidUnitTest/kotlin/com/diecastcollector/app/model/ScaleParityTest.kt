@@ -21,6 +21,13 @@ class ScaleParityTest {
             .findAll(source)
             .associate { it.groupValues[1] to it.groupValues[2] }
 
-        assertEquals(apiValues, Scale.entries.associate { it.name to it.label })
+        // Names are what goes over the wire, so they must match exactly.
+        assertEquals(apiValues.keys, Scale.entries.map { it.name }.toSet())
+        // Ratio labels ("1:64") are the same in any language. OTHER is plain UI text, translated
+        // in the app (pt-BR), so its label is deliberately not compared.
+        assertEquals(
+            apiValues - "OTHER",
+            Scale.entries.filter { it != Scale.OTHER }.associate { it.name to it.label }
+        )
     }
 }
