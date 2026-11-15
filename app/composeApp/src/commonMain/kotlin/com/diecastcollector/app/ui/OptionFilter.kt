@@ -25,5 +25,6 @@ private val accents = mapOf(
     'ý' to 'y', 'ÿ' to 'y', 'ž' to 'z', 'ź' to 'z', 'ż' to 'z'
 )
 
-private fun fold(text: String): String =
+/** Lowercases [text] and strips common accents, for comparisons that should ignore both. */
+internal fun fold(text: String): String =
     text.lowercase().map { accents[it] ?: it }.joinToString("")
