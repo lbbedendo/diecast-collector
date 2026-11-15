@@ -66,8 +66,6 @@ data class DiecastModel(
     val color: String?,
     val notes: String?,
     val photoUrl: String?,
-    // Not in the app's form yet, but PUT /models/{id} replaces the whole Model, so an edit has to
-    // send them back as they were (see toRequest).
     val seriesNumber: String? = null,
     val purchasePrice: Double? = null,
     val purchaseDate: String? = null,
