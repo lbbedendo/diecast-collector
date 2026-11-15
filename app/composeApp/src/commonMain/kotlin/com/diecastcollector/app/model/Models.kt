@@ -65,7 +65,13 @@ data class DiecastModel(
     val vehicleYear: Int?,
     val color: String?,
     val notes: String?,
-    val photoUrl: String?
+    val photoUrl: String?,
+    // Not in the app's form yet, but PUT /models/{id} replaces the whole Model, so an edit has to
+    // send them back as they were (see toRequest).
+    val seriesNumber: String? = null,
+    val purchasePrice: Double? = null,
+    val purchaseDate: String? = null,
+    val purchasedFrom: String? = null
 )
 
 /**
@@ -90,7 +96,29 @@ data class ModelRequest(
     @EncodeDefault val chase: Boolean = false,
     val vehicleYear: Int?,
     val color: String?,
-    val notes: String?
+    val notes: String?,
+    val seriesNumber: String? = null,
+    val purchasePrice: Double? = null,
+    val purchaseDate: String? = null,
+    val purchasedFrom: String? = null
+)
+
+/** The request that saves this Model unchanged: the starting point of an edit. */
+fun DiecastModel.toRequest(): ModelRequest = ModelRequest(
+    name = name,
+    automakerId = automaker?.id,
+    seriesId = series?.id,
+    scale = scale,
+    packaging = packaging,
+    condition = condition,
+    chase = chase,
+    vehicleYear = vehicleYear,
+    color = color,
+    notes = notes,
+    seriesNumber = seriesNumber,
+    purchasePrice = purchasePrice,
+    purchaseDate = purchaseDate,
+    purchasedFrom = purchasedFrom
 )
 
 @Serializable

@@ -13,6 +13,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.diecastcollector.app.auth.TokenStorage
+import com.diecastcollector.app.model.DiecastModel
 import com.diecastcollector.app.ui.CollectionListScreen
 import com.diecastcollector.app.ui.LoginScreen
 import com.diecastcollector.app.ui.ModelEditScreen
@@ -22,6 +23,7 @@ private sealed interface Screen {
     data object Login : Screen
     data object List : Screen
     data object NewModel : Screen
+    data class EditModel(val model: DiecastModel) : Screen
 }
 
 @Composable
@@ -43,7 +45,7 @@ fun App(tokenStorage: TokenStorage) {
 
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
-            when (screen) {
+            when (val current = screen) {
                 Screen.Login -> LoginScreen(
                     uiState = uiState,
                     onLogin = { provider, idToken -> scope.launch { viewModel.login(provider, idToken) } },
@@ -52,6 +54,7 @@ fun App(tokenStorage: TokenStorage) {
                 Screen.List -> CollectionListScreen(
                     uiState = uiState,
                     onAddClick = { screen = Screen.NewModel },
+                    onModelClick = { model -> screen = Screen.EditModel(model) },
                     onDelete = { id -> scope.launch { viewModel.deleteModel(id) } },
                     onLogout = { viewModel.logout() }
                 )
@@ -60,6 +63,18 @@ fun App(tokenStorage: TokenStorage) {
                     onSave = { request ->
                         scope.launch {
                             viewModel.createModel(request)
+                            screen = Screen.List
+                        }
+                    },
+                    onCreateSeries = { request -> viewModel.createSeries(request) },
+                    onCancel = { screen = Screen.List }
+                )
+                is Screen.EditModel -> ModelEditScreen(
+                    uiState = uiState,
+                    model = current.model,
+                    onSave = { request ->
+                        scope.launch {
+                            viewModel.updateModel(current.model.id, request)
                             screen = Screen.List
                         }
                     },

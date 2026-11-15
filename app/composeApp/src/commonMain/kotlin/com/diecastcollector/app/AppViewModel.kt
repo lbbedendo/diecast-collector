@@ -11,6 +11,7 @@ import com.diecastcollector.app.model.SocialLoginRequest
 import com.diecastcollector.app.network.DiecastApi
 import com.diecastcollector.app.network.createHttpClient
 import com.diecastcollector.app.ui.errorMessage
+import com.diecastcollector.app.ui.sortedForList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -72,7 +73,7 @@ class AppViewModel(private val tokenStorage: TokenStorage) {
     suspend fun loadModels() {
         _uiState.value = _uiState.value.copy(isLoading = true, error = null)
         runCatching { api.getModels() }
-            .onSuccess { models -> _uiState.value = _uiState.value.copy(models = models, isLoading = false) }
+            .onSuccess { models -> _uiState.value = _uiState.value.copy(models = sortedForList(models), isLoading = false) }
             .onFailure { error -> _uiState.value = _uiState.value.copy(isLoading = false, error = errorMessage(error)) }
     }
 
@@ -98,6 +99,12 @@ class AppViewModel(private val tokenStorage: TokenStorage) {
 
     suspend fun createModel(request: ModelRequest): DiecastModel? =
         runCatching { api.createModel(request) }
+            .onSuccess { loadModels() }
+            .onFailure { error -> _uiState.value = _uiState.value.copy(error = errorMessage(error)) }
+            .getOrNull()
+
+    suspend fun updateModel(id: Long, request: ModelRequest): DiecastModel? =
+        runCatching { api.updateModel(id, request) }
             .onSuccess { loadModels() }
             .onFailure { error -> _uiState.value = _uiState.value.copy(error = errorMessage(error)) }
             .getOrNull()

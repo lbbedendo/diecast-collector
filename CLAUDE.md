@@ -102,7 +102,7 @@ returning `Optional`/null up to controllers.
 ### app/ — Kotlin Multiplatform + Compose
 
 Single-activity, single-`ViewModel` architecture — no navigation library. `App.kt` holds a small
-`sealed interface Screen` (`Login` / `List` / `NewModel`) and switches on it directly; `AppViewModel`
+`sealed interface Screen` (`Login` / `List` / `NewModel` / `EditModel`) and switches on it directly; `AppViewModel`
 exposes one `StateFlow<AppUiState>` that every screen reads, and all screens are stateless
 Composables driven by that state plus callbacks.
 
