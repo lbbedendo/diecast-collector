@@ -102,6 +102,12 @@ class AppViewModel(private val tokenStorage: TokenStorage) {
             .onFailure { error -> _uiState.value = _uiState.value.copy(error = errorMessage(error)) }
             .getOrNull()
 
+    suspend fun updateModel(id: Long, request: ModelRequest): DiecastModel? =
+        runCatching { api.updateModel(id, request) }
+            .onSuccess { loadModels() }
+            .onFailure { error -> _uiState.value = _uiState.value.copy(error = errorMessage(error)) }
+            .getOrNull()
+
     suspend fun uploadPhoto(modelId: Long, fileName: String, bytes: ByteArray) {
         runCatching { api.uploadPhoto(modelId, fileName, bytes) }
             .onSuccess { loadModels() }

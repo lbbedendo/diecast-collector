@@ -1,5 +1,6 @@
 package com.diecastcollector.app.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import com.diecastcollector.app.model.displayName
 fun CollectionListScreen(
     uiState: AppUiState,
     onAddClick: () -> Unit,
+    onModelClick: (DiecastModel) -> Unit,
     onDelete: (Long) -> Unit,
     onLogout: () -> Unit
 ) {
@@ -44,16 +46,16 @@ fun CollectionListScreen(
 
         LazyColumn {
             items(uiState.models) { model: DiecastModel ->
-                ModelRow(model = model, onDelete = { onDelete(model.id) })
+                ModelRow(model = model, onClick = { onModelClick(model) }, onDelete = { onDelete(model.id) })
             }
         }
     }
 }
 
 @Composable
-private fun ModelRow(model: DiecastModel, onDelete: () -> Unit) {
+private fun ModelRow(model: DiecastModel, onClick: () -> Unit, onDelete: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {

@@ -32,30 +32,34 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.diecastcollector.app.AppUiState
 import com.diecastcollector.app.model.Condition
+import com.diecastcollector.app.model.DiecastModel
 import com.diecastcollector.app.model.ModelRequest
 import com.diecastcollector.app.model.Packaging
 import com.diecastcollector.app.model.Scale
 import com.diecastcollector.app.model.Series
 import com.diecastcollector.app.model.SeriesRequest
+import com.diecastcollector.app.model.toRequest
 
+/** Creates a Model, or edits [model] when one is given. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModelEditScreen(
     uiState: AppUiState,
+    model: DiecastModel? = null,
     onSave: (ModelRequest) -> Unit,
     onCreateSeries: suspend (SeriesRequest) -> Result<Series>,
     onCancel: () -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var scale by remember { mutableStateOf<Scale?>(null) }
-    var vehicleYear by remember { mutableStateOf("") }
-    var packaging by remember { mutableStateOf<Packaging?>(null) }
-    var condition by remember { mutableStateOf<Condition?>(null) }
-    var chase by remember { mutableStateOf(false) }
-    var color by remember { mutableStateOf("") }
-    var notes by remember { mutableStateOf("") }
-    var selectedAutomakerId by remember { mutableStateOf<Long?>(null) }
-    var selectedSeriesId by remember { mutableStateOf<Long?>(null) }
+    var name by remember { mutableStateOf(model?.name ?: "") }
+    var scale by remember { mutableStateOf(model?.scale) }
+    var vehicleYear by remember { mutableStateOf(model?.vehicleYear?.toString() ?: "") }
+    var packaging by remember { mutableStateOf(model?.packaging) }
+    var condition by remember { mutableStateOf(model?.condition) }
+    var chase by remember { mutableStateOf(model?.chase ?: false) }
+    var color by remember { mutableStateOf(model?.color ?: "") }
+    var notes by remember { mutableStateOf(model?.notes ?: "") }
+    var selectedAutomakerId by remember { mutableStateOf(model?.automaker?.id) }
+    var selectedSeriesId by remember { mutableStateOf(model?.series?.id) }
     var showNewSeries by remember { mutableStateOf(false) }
     val newSeriesButtonFocus = remember { FocusRequester() }
 
@@ -74,7 +78,7 @@ fun ModelEditScreen(
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)
     ) {
-        Text("Novo modelo")
+        Text(if (model == null) "Novo modelo" else "Editar modelo")
 
         // Automaker first: the Name that follows leaves it out ("F2004", not "Ferrari F2004").
         SearchablePicker(
@@ -171,8 +175,13 @@ fun ModelEditScreen(
         Row(modifier = Modifier.padding(top = 24.dp)) {
             Button(
                 onClick = {
+                    // Start from the edited Model so the fields this form doesn't show are kept.
+                    val base = model?.toRequest() ?: ModelRequest(
+                        name = "", automakerId = null, seriesId = null, scale = null, packaging = null,
+                        condition = null, vehicleYear = null, color = null, notes = null
+                    )
                     onSave(
-                        ModelRequest(
+                        base.copy(
                             name = name,
                             automakerId = selectedAutomakerId,
                             seriesId = selectedSeriesId,
