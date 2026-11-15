@@ -74,11 +74,11 @@ fun ModelEditScreen(
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)
     ) {
-        Text("New model")
+        Text("Novo modelo")
 
         // Automaker first: the Name that follows leaves it out ("F2004", not "Ferrari F2004").
         SearchablePicker(
-            label = "Automaker",
+            label = "Montadora",
             options = uiState.automakers.map { it.id to it.name },
             selectedId = selectedAutomakerId,
             onSelect = { selectedAutomakerId = it }
@@ -87,15 +87,15 @@ fun ModelEditScreen(
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Name") },
-            placeholder = { Text("Vehicle name, without the automaker (e.g. F2004)") },
+            label = { Text("Nome") },
+            placeholder = { Text("Nome do veículo, sem a montadora (ex.: F2004)") },
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
         )
 
         OutlinedTextField(
             value = vehicleYear,
             onValueChange = { input -> vehicleYear = input.filter(Char::isDigit).take(4) },
-            label = { Text("Vehicle year (real car, e.g. 2004)") },
+            label = { Text("Ano do veículo (carro real, ex.: 2004)") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
         )
@@ -105,7 +105,7 @@ fun ModelEditScreen(
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
         ) {
             LabeledPicker(
-                label = "Series",
+                label = "Série",
                 options = uiState.series.map { it.id to seriesLabel(it) },
                 selectedId = selectedSeriesId,
                 onSelect = { selectedSeriesId = it },
@@ -126,21 +126,21 @@ fun ModelEditScreen(
         }
 
         LabeledPicker(
-            label = "Scale",
+            label = "Escala",
             options = Scale.entries.map { it to it.label },
             selectedId = scale,
             onSelect = { scale = it }
         )
 
         LabeledPicker(
-            label = "Packaging",
+            label = "Embalagem",
             options = Packaging.entries.map { it to it.label },
             selectedId = packaging,
             onSelect = { packaging = it }
         )
 
         LabeledPicker(
-            label = "Condition",
+            label = "Condição",
             options = Condition.entries.map { it to it.label },
             selectedId = condition,
             onSelect = { condition = it }
@@ -151,20 +151,20 @@ fun ModelEditScreen(
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
         ) {
             Checkbox(checked = chase, onCheckedChange = { chase = it })
-            Text("Chase (rare variant, e.g. a Treasure Hunt)")
+            Text("Chase (variante rara, ex.: um Treasure Hunt)")
         }
 
         OutlinedTextField(
             value = color,
             onValueChange = { color = it },
-            label = { Text("Color") },
+            label = { Text("Cor") },
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
         )
 
         OutlinedTextField(
             value = notes,
             onValueChange = { notes = it },
-            label = { Text("Notes") },
+            label = { Text("Observações") },
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
         )
 
@@ -187,10 +187,10 @@ fun ModelEditScreen(
                     )
                 }
             ) {
-                Text("Save")
+                Text("Salvar")
             }
             TextButton(onClick = onCancel, modifier = Modifier.padding(start = 8.dp)) {
-                Text("Cancel")
+                Text("Cancelar")
             }
         }
     }

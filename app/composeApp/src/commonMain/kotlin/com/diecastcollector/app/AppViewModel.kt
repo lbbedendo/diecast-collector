@@ -10,6 +10,7 @@ import com.diecastcollector.app.model.SeriesRequest
 import com.diecastcollector.app.model.SocialLoginRequest
 import com.diecastcollector.app.network.DiecastApi
 import com.diecastcollector.app.network.createHttpClient
+import com.diecastcollector.app.ui.errorMessage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,7 +47,7 @@ class AppViewModel(private val tokenStorage: TokenStorage) {
             tokenStorage.save(response.accessToken)
             _uiState.value = _uiState.value.copy(isLoggedIn = true, isLoading = false)
         }.onFailure { error ->
-            _uiState.value = _uiState.value.copy(isLoading = false, error = error.message)
+            _uiState.value = _uiState.value.copy(isLoading = false, error = errorMessage(error))
         }
     }
 
@@ -59,7 +60,7 @@ class AppViewModel(private val tokenStorage: TokenStorage) {
                 _uiState.value = _uiState.value.copy(isLoggedIn = true, isLoading = false)
             }
             .onFailure { error ->
-                _uiState.value = _uiState.value.copy(isLoading = false, error = error.message)
+                _uiState.value = _uiState.value.copy(isLoading = false, error = errorMessage(error))
             }
     }
 
@@ -72,7 +73,7 @@ class AppViewModel(private val tokenStorage: TokenStorage) {
         _uiState.value = _uiState.value.copy(isLoading = true, error = null)
         runCatching { api.getModels() }
             .onSuccess { models -> _uiState.value = _uiState.value.copy(models = models, isLoading = false) }
-            .onFailure { error -> _uiState.value = _uiState.value.copy(isLoading = false, error = error.message) }
+            .onFailure { error -> _uiState.value = _uiState.value.copy(isLoading = false, error = errorMessage(error)) }
     }
 
     suspend fun loadLookups() {
@@ -81,7 +82,7 @@ class AppViewModel(private val tokenStorage: TokenStorage) {
         }.onSuccess { (automakers, brands, series) ->
             _uiState.value = _uiState.value.copy(automakers = automakers, brands = brands, series = series)
         }.onFailure { error ->
-            _uiState.value = _uiState.value.copy(error = error.message)
+            _uiState.value = _uiState.value.copy(error = errorMessage(error))
         }
     }
 
@@ -98,18 +99,18 @@ class AppViewModel(private val tokenStorage: TokenStorage) {
     suspend fun createModel(request: ModelRequest): DiecastModel? =
         runCatching { api.createModel(request) }
             .onSuccess { loadModels() }
-            .onFailure { error -> _uiState.value = _uiState.value.copy(error = error.message) }
+            .onFailure { error -> _uiState.value = _uiState.value.copy(error = errorMessage(error)) }
             .getOrNull()
 
     suspend fun uploadPhoto(modelId: Long, fileName: String, bytes: ByteArray) {
         runCatching { api.uploadPhoto(modelId, fileName, bytes) }
             .onSuccess { loadModels() }
-            .onFailure { error -> _uiState.value = _uiState.value.copy(error = error.message) }
+            .onFailure { error -> _uiState.value = _uiState.value.copy(error = errorMessage(error)) }
     }
 
     suspend fun deleteModel(id: Long) {
         runCatching { api.deleteModel(id) }
             .onSuccess { loadModels() }
-            .onFailure { error -> _uiState.value = _uiState.value.copy(error = error.message) }
+            .onFailure { error -> _uiState.value = _uiState.value.copy(error = errorMessage(error)) }
     }
 }

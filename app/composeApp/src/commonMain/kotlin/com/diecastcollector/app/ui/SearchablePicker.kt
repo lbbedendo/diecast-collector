@@ -53,7 +53,7 @@ internal fun <T> SearchablePicker(
                 if (typed.isBlank()) onSelect(null)
             },
             label = { Text(label) },
-            placeholder = { Text("Type to search") },
+            placeholder = { Text("Digite para buscar") },
             singleLine = true,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable).fillMaxWidth()

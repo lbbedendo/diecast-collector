@@ -28,12 +28,12 @@ fun CollectionListScreen(
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("My Collection")
-            TextButton(onClick = onLogout) { Text("Log out") }
+            Text("Minha Coleção")
+            TextButton(onClick = onLogout) { Text("Sair") }
         }
 
         Button(onClick = onAddClick, modifier = Modifier.padding(vertical = 12.dp)) {
-            Text("Add model")
+            Text("Adicionar modelo")
         }
 
         if (uiState.isLoading) {
@@ -62,6 +62,6 @@ private fun ModelRow(model: DiecastModel, onDelete: () -> Unit) {
             // The Automaker is already in the title.
             Text(listOfNotNull(model.series?.brand?.name, model.series?.name).joinToString(" · "))
         }
-        TextButton(onClick = onDelete) { Text("Delete") }
+        TextButton(onClick = onDelete) { Text("Excluir") }
     }
 }

@@ -44,11 +44,11 @@ internal fun NewSeriesDialog(
 
     AlertDialog(
         onDismissRequest = { if (!saving) onDismiss() },
-        title = { Text("New series") },
+        title = { Text("Nova série") },
         text = {
             Column {
                 SearchablePicker(
-                    label = "Brand",
+                    label = "Marca",
                     options = brands.map { it.id to it.name },
                     selectedId = brandId,
                     onSelect = { brandId = it },
@@ -57,15 +57,15 @@ internal fun NewSeriesDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Name") },
-                    placeholder = { Text("e.g. HW Starting Grid") },
+                    label = { Text("Nome") },
+                    placeholder = { Text("ex.: HW Starting Grid") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
                 )
                 OutlinedTextField(
                     value = year,
                     onValueChange = { input -> year = input.filter(Char::isDigit).take(4) },
-                    label = { Text("Year (optional)") },
+                    label = { Text("Ano (opcional)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
@@ -85,14 +85,14 @@ internal fun NewSeriesDialog(
                     scope.launch {
                         onCreate(request)
                             .onSuccess(onCreated)
-                            .onFailure { error = it.message ?: "Couldn't create the series" }
+                            .onFailure { error = errorMessage(it, onConflict = "Já existe uma série com essa marca, nome e ano.") }
                         saving = false
                     }
                 }
-            ) { Text("Create") }
+            ) { Text("Criar") }
         },
         dismissButton = {
-            TextButton(enabled = !saving, onClick = onDismiss) { Text("Cancel") }
+            TextButton(enabled = !saving, onClick = onDismiss) { Text("Cancelar") }
         }
     )
 }

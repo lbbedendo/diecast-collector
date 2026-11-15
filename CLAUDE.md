@@ -106,6 +106,12 @@ Single-activity, single-`ViewModel` architecture — no navigation library. `App
 exposes one `StateFlow<AppUiState>` that every screen reads, and all screens are stateless
 Composables driven by that state plus callbacks.
 
+**UI text is Brazilian Portuguese; everything else is English.** Strings the Collector reads
+(labels, buttons, placeholders, enum `label`s, app-side error fallbacks) are written in pt-BR
+directly in the Composables. Identifiers, comments, enum names and anything sent to the API stay
+in English. Exception messages (HTTP client, API) are English and are never shown as-is:
+`ui/ErrorMessages.kt` picks the pt-BR text from the kind of failure.
+
 **Platform-specific code uses Kotlin's `expect`/`actual`**, one pair per concern, each with its own
 file suffix convention: `TokenStorage` (secure storage), `SignInLaunchers` (Google/Apple SDK
 entry points), `CameraCapture`, `HttpClientEngine` (Ktor engine per platform — OkHttp on Android,
