@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -23,6 +24,8 @@ import com.diecastcollector.app.model.displayName
 @Composable
 fun CollectionListScreen(
     uiState: AppUiState,
+    searchQuery: String,
+    onSearchChange: (String) -> Unit,
     onAddClick: () -> Unit,
     onModelClick: (DiecastModel) -> Unit,
     onDelete: (Long) -> Unit,
@@ -44,8 +47,22 @@ fun CollectionListScreen(
 
         uiState.error?.let { Text(it) }
 
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = onSearchChange,
+            label = { Text("Buscar na coleção") },
+            placeholder = { Text("Montadora, nome, série ou marca") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+        )
+
+        val shown = searchModels(uiState.models, searchQuery)
+        if (shown.isEmpty() && searchQuery.isNotBlank()) {
+            Text("Nenhum modelo encontrado para \"${searchQuery.trim()}\".")
+        }
+
         LazyColumn {
-            items(uiState.models) { model: DiecastModel ->
+            items(shown) { model: DiecastModel ->
                 ModelRow(model = model, onClick = { onModelClick(model) }, onDelete = { onDelete(model.id) })
             }
         }

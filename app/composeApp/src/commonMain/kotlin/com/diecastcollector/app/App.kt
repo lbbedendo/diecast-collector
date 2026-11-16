@@ -31,6 +31,8 @@ fun App(tokenStorage: TokenStorage) {
     val viewModel = remember { AppViewModel(tokenStorage) }
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
+    // Kept here, not in the list screen, so the search survives a round trip to the Model form.
+    var searchQuery by remember { mutableStateOf("") }
     var screen by remember { mutableStateOf<Screen>(if (uiState.isLoggedIn) Screen.List else Screen.Login) }
 
     LaunchedEffect(uiState.isLoggedIn) {
@@ -40,6 +42,7 @@ fun App(tokenStorage: TokenStorage) {
             viewModel.loadLookups()
         } else {
             screen = Screen.Login
+            searchQuery = ""
         }
     }
 
@@ -53,6 +56,8 @@ fun App(tokenStorage: TokenStorage) {
                 )
                 Screen.List -> CollectionListScreen(
                     uiState = uiState,
+                    searchQuery = searchQuery,
+                    onSearchChange = { searchQuery = it },
                     onAddClick = { screen = Screen.NewModel },
                     onModelClick = { model -> screen = Screen.EditModel(model) },
                     onDelete = { id -> scope.launch { viewModel.deleteModel(id) } },
