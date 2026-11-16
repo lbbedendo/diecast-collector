@@ -9,12 +9,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.diecastcollector.app.AppUiState
@@ -31,6 +36,26 @@ fun CollectionListScreen(
     onDelete: (Long) -> Unit,
     onLogout: () -> Unit
 ) {
+    // A delete can't be undone, so "Excluir" on a row only asks; the dialog does the deleting.
+    var pendingDelete by remember { mutableStateOf<DiecastModel?>(null) }
+
+    pendingDelete?.let { model ->
+        AlertDialog(
+            onDismissRequest = { pendingDelete = null },
+            title = { Text("Excluir ${model.displayName}?") },
+            text = { Text("O modelo será removido da sua coleção. Essa ação não pode ser desfeita.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    pendingDelete = null
+                    onDelete(model.id)
+                }) { Text("Excluir") }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDelete = null }) { Text("Cancelar") }
+            }
+        )
+    }
+
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text("Minha Coleção")
@@ -63,7 +88,7 @@ fun CollectionListScreen(
 
         LazyColumn {
             items(shown) { model: DiecastModel ->
-                ModelRow(model = model, onClick = { onModelClick(model) }, onDelete = { onDelete(model.id) })
+                ModelRow(model = model, onClick = { onModelClick(model) }, onDelete = { pendingDelete = model })
             }
         }
     }
