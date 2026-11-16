@@ -67,6 +67,8 @@ data class DiecastModel(
     val notes: String?,
     val photoUrl: String?,
     val seriesNumber: String? = null,
+    // Purchase details aren't in the app's form for now, but PUT /models/{id} replaces the whole
+    // Model, so an edit has to send them back as they were (see toRequest).
     val purchasePrice: Double? = null,
     val purchaseDate: String? = null,
     val purchasedFrom: String? = null

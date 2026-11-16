@@ -59,12 +59,6 @@ fun ModelEditScreen(
     var color by remember { mutableStateOf(model?.color ?: "") }
     var notes by remember { mutableStateOf(model?.notes ?: "") }
     var seriesNumber by remember { mutableStateOf(model?.seriesNumber ?: "") }
-    var purchasePrice by remember { mutableStateOf(model?.purchasePrice?.let(::formatPrice) ?: "") }
-    var purchaseDate by remember { mutableStateOf(model?.purchaseDate?.let(::formatDate) ?: "") }
-    var purchasedFrom by remember { mutableStateOf(model?.purchasedFrom ?: "") }
-    // A typed value that doesn't parse is flagged and blocks saving rather than being dropped.
-    val priceInvalid = purchasePrice.isNotBlank() && parsePrice(purchasePrice) == null
-    val dateInvalid = purchaseDate.isNotBlank() && parseDate(purchaseDate) == null
     var selectedAutomakerId by remember { mutableStateOf(model?.automaker?.id) }
     var selectedSeriesId by remember { mutableStateOf(model?.series?.id) }
     var showNewSeries by remember { mutableStateOf(false) }
@@ -181,44 +175,6 @@ fun ModelEditScreen(
         )
 
         OutlinedTextField(
-            value = purchasePrice,
-            onValueChange = { input -> purchasePrice = input.filter { it.isDigit() || it == ',' || it == '.' } },
-            label = { Text("Preço pago (R$)") },
-            placeholder = { Text("ex.: 12,90") },
-            isError = priceInvalid,
-            supportingText = if (priceInvalid) {
-                { Text("Use um valor como 12,90") }
-            } else {
-                null
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
-        )
-
-        OutlinedTextField(
-            value = purchaseDate,
-            onValueChange = { input -> purchaseDate = input.filter { it.isDigit() || it == '/' }.take(10) },
-            label = { Text("Data da compra") },
-            placeholder = { Text("DD/MM/AAAA") },
-            isError = dateInvalid,
-            supportingText = if (dateInvalid) {
-                { Text("Use uma data válida no formato DD/MM/AAAA") }
-            } else {
-                null
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
-        )
-
-        OutlinedTextField(
-            value = purchasedFrom,
-            onValueChange = { purchasedFrom = it },
-            label = { Text("Comprado de") },
-            placeholder = { Text("Loja, site ou pessoa") },
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
-        )
-
-        OutlinedTextField(
             value = notes,
             onValueChange = { notes = it },
             label = { Text("Observações") },
@@ -227,7 +183,6 @@ fun ModelEditScreen(
 
         Row(modifier = Modifier.padding(top = 24.dp)) {
             Button(
-                enabled = !priceInvalid && !dateInvalid,
                 onClick = {
                     // Start from the edited Model: PUT replaces the whole Model, so a field the
                     // form doesn't set is sent back as it was instead of being wiped.
@@ -247,10 +202,7 @@ fun ModelEditScreen(
                             vehicleYear = vehicleYear.toIntOrNull(),
                             color = color.ifBlank { null },
                             notes = notes.ifBlank { null },
-                            seriesNumber = seriesNumber.trim().ifBlank { null },
-                            purchasePrice = parsePrice(purchasePrice),
-                            purchaseDate = parseDate(purchaseDate),
-                            purchasedFrom = purchasedFrom.ifBlank { null }
+                            seriesNumber = seriesNumber.trim().ifBlank { null }
                         )
                     )
                 }
