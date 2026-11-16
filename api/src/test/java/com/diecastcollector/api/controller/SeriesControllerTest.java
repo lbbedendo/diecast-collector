@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.diecastcollector.api.AbstractIntegrationTest;
 import com.diecastcollector.api.dto.BrandRequest;
 import com.diecastcollector.api.dto.BrandResponse;
+import com.diecastcollector.api.dto.ModelRequest;
+import com.diecastcollector.api.dto.ModelResponse;
 import com.diecastcollector.api.dto.SeriesRequest;
 import com.diecastcollector.api.dto.SeriesResponse;
 import java.util.UUID;
@@ -93,6 +95,27 @@ class SeriesControllerTest extends AbstractIntegrationTest {
         ResponseEntity<Object> refetch = restTemplate.exchange(
                 "/series/" + created.id(), HttpMethod.GET, new HttpEntity<>(headers), Object.class);
         assertThat(refetch.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void deleteSeriesInUseIsRejected() {
+        var headers = authHeaders();
+        BrandResponse brand = createBrand(headers, "Hot Wheels");
+        SeriesResponse created = create(headers, brand.id(), "HW Exotics", 2024);
+        restTemplate.exchange(
+                "/models",
+                HttpMethod.POST,
+                new HttpEntity<>(new ModelRequest(
+                        "Test model", null, null, null, null, null, null, false, null, null, null, null, null, created.id()), headers),
+                ModelResponse.class);
+
+        ResponseEntity<Object> deleted = restTemplate.exchange(
+                "/series/" + created.id(), HttpMethod.DELETE, new HttpEntity<>(headers), Object.class);
+        assertThat(deleted.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+
+        ResponseEntity<SeriesResponse> refetch = restTemplate.exchange(
+                "/series/" + created.id(), HttpMethod.GET, new HttpEntity<>(headers), SeriesResponse.class);
+        assertThat(refetch.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test

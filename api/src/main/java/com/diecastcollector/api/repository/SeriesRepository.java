@@ -18,4 +18,6 @@ public interface SeriesRepository extends JpaRepository<Series, Long> {
     Optional<Series> findByBrandIdAndNameAndYear(Long brandId, String name, Integer year);
 
     Optional<Series> findByBrandIdAndNameAndYearIsNull(Long brandId, String name);
+
+    boolean existsByBrandId(Long brandId);
 }

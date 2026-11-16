@@ -2,8 +2,10 @@ package com.diecastcollector.api.service;
 
 import com.diecastcollector.api.domain.Brand;
 import com.diecastcollector.api.dto.BrandRequest;
+import com.diecastcollector.api.exception.ConflictException;
 import com.diecastcollector.api.exception.ResourceNotFoundException;
 import com.diecastcollector.api.repository.BrandRepository;
+import com.diecastcollector.api.repository.SeriesRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,9 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class BrandService {
 
     private final BrandRepository brandRepository;
+    private final SeriesRepository seriesRepository;
 
-    public BrandService(BrandRepository brandRepository) {
+    public BrandService(BrandRepository brandRepository, SeriesRepository seriesRepository) {
         this.brandRepository = brandRepository;
+        this.seriesRepository = seriesRepository;
     }
 
     public List<Brand> findAll() {
@@ -39,7 +43,11 @@ public class BrandService {
 
     @Transactional
     public void delete(Long id) {
-        brandRepository.delete(getById(id));
+        Brand brand = getById(id);
+        if (seriesRepository.existsByBrandId(id)) {
+            throw new ConflictException("Brand " + id + " has Series and can't be deleted");
+        }
+        brandRepository.delete(brand);
     }
 
     private ResourceNotFoundException notFound(Long id) {

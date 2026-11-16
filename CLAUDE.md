@@ -92,6 +92,7 @@ token is never reused past the login call. `SecurityConfig` permits `/auth/**`, 
 
 **Error handling:** `GlobalExceptionHandler` (`@RestControllerAdvice`) is the single place that
 maps exceptions to HTTP status — `ResourceNotFoundException` → 404, `InvalidTokenException` → 401,
+`ConflictException` → 409 (a duplicate Series, or deleting an Automaker/Brand/Series still in use),
 bean validation failures → 400. Services throw `ResourceNotFoundException` directly rather than
 returning `Optional`/null up to controllers.
 

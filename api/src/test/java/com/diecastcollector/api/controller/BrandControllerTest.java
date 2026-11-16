@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.diecastcollector.api.AbstractIntegrationTest;
 import com.diecastcollector.api.dto.BrandRequest;
 import com.diecastcollector.api.dto.BrandResponse;
+import com.diecastcollector.api.dto.SeriesRequest;
+import com.diecastcollector.api.dto.SeriesResponse;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,6 +98,25 @@ class BrandControllerTest extends AbstractIntegrationTest {
         ResponseEntity<Object> refetch = restTemplate.exchange(
                 "/brands/" + created.id(), HttpMethod.GET, new HttpEntity<>(headers), Object.class);
         assertThat(refetch.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void deleteBrandWithSeriesIsRejected() {
+        var headers = authHeaders();
+        BrandResponse created = create(headers, "Kyosho" + suffix);
+        restTemplate.exchange(
+                "/series",
+                HttpMethod.POST,
+                new HttpEntity<>(new SeriesRequest(created.id(), "Mini Car Collection", 2020), headers),
+                SeriesResponse.class);
+
+        ResponseEntity<Object> deleted = restTemplate.exchange(
+                "/brands/" + created.id(), HttpMethod.DELETE, new HttpEntity<>(headers), Object.class);
+        assertThat(deleted.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+
+        ResponseEntity<BrandResponse> refetch = restTemplate.exchange(
+                "/brands/" + created.id(), HttpMethod.GET, new HttpEntity<>(headers), BrandResponse.class);
+        assertThat(refetch.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     private BrandResponse create(HttpHeaders headers, String name) {
