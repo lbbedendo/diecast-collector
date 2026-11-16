@@ -58,6 +58,7 @@ fun ModelEditScreen(
     var chase by remember { mutableStateOf(model?.chase ?: false) }
     var color by remember { mutableStateOf(model?.color ?: "") }
     var notes by remember { mutableStateOf(model?.notes ?: "") }
+    var seriesNumber by remember { mutableStateOf(model?.seriesNumber ?: "") }
     var selectedAutomakerId by remember { mutableStateOf(model?.automaker?.id) }
     var selectedSeriesId by remember { mutableStateOf(model?.series?.id) }
     var showNewSeries by remember { mutableStateOf(false) }
@@ -129,6 +130,14 @@ fun ModelEditScreen(
             }
         }
 
+        OutlinedTextField(
+            value = seriesNumber,
+            onValueChange = { seriesNumber = it },
+            label = { Text("Número na série") },
+            placeholder = { Text("Como impresso na embalagem (ex.: 10/10)") },
+            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+        )
+
         LabeledPicker(
             label = "Escala",
             options = Scale.entries.map { it to it.label },
@@ -175,7 +184,8 @@ fun ModelEditScreen(
         Row(modifier = Modifier.padding(top = 24.dp)) {
             Button(
                 onClick = {
-                    // Start from the edited Model so the fields this form doesn't show are kept.
+                    // Start from the edited Model: PUT replaces the whole Model, so a field the
+                    // form doesn't set is sent back as it was instead of being wiped.
                     val base = model?.toRequest() ?: ModelRequest(
                         name = "", automakerId = null, seriesId = null, scale = null, packaging = null,
                         condition = null, vehicleYear = null, color = null, notes = null
@@ -191,7 +201,8 @@ fun ModelEditScreen(
                             chase = chase,
                             vehicleYear = vehicleYear.toIntOrNull(),
                             color = color.ifBlank { null },
-                            notes = notes.ifBlank { null }
+                            notes = notes.ifBlank { null },
+                            seriesNumber = seriesNumber.trim().ifBlank { null }
                         )
                     )
                 }
