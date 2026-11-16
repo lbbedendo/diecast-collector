@@ -15,4 +15,9 @@ public interface ModelRepository extends JpaRepository<Model, Long> {
     Optional<Model> findByIdAndOwnerId(Long id, Long ownerId);
 
     long countByOwnerId(Long ownerId);
+
+    // Across every Collector: Automakers and Series are shared, so any Model keeps them in use.
+    boolean existsByAutomakerId(Long automakerId);
+
+    boolean existsBySeriesId(Long seriesId);
 }

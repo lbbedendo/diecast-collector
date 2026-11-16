@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.tuple;
 import com.diecastcollector.api.AbstractIntegrationTest;
 import com.diecastcollector.api.dto.AutomakerRequest;
 import com.diecastcollector.api.dto.AutomakerResponse;
+import com.diecastcollector.api.dto.ModelRequest;
+import com.diecastcollector.api.dto.ModelResponse;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,6 +103,26 @@ class AutomakerControllerTest extends AbstractIntegrationTest {
         ResponseEntity<Object> refetch = restTemplate.exchange(
                 "/automakers/" + created.id(), HttpMethod.GET, new HttpEntity<>(headers), Object.class);
         assertThat(refetch.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void deleteAutomakerInUseIsRejected() {
+        var headers = authHeaders();
+        AutomakerResponse created = create(headers, "Lancia" + suffix, "Italy");
+        restTemplate.exchange(
+                "/models",
+                HttpMethod.POST,
+                new HttpEntity<>(new ModelRequest(
+                        "Test model", null, null, null, null, null, null, false, null, null, null, null, created.id(), null), headers),
+                ModelResponse.class);
+
+        ResponseEntity<Object> deleted = restTemplate.exchange(
+                "/automakers/" + created.id(), HttpMethod.DELETE, new HttpEntity<>(headers), Object.class);
+        assertThat(deleted.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+
+        ResponseEntity<AutomakerResponse> refetch = restTemplate.exchange(
+                "/automakers/" + created.id(), HttpMethod.GET, new HttpEntity<>(headers), AutomakerResponse.class);
+        assertThat(refetch.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     private AutomakerResponse create(HttpHeaders headers, String name, String country) {

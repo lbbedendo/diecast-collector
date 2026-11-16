@@ -2,8 +2,10 @@ package com.diecastcollector.api.service;
 
 import com.diecastcollector.api.domain.Automaker;
 import com.diecastcollector.api.dto.AutomakerRequest;
+import com.diecastcollector.api.exception.ConflictException;
 import com.diecastcollector.api.exception.ResourceNotFoundException;
 import com.diecastcollector.api.repository.AutomakerRepository;
+import com.diecastcollector.api.repository.ModelRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,9 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class AutomakerService {
 
     private final AutomakerRepository automakerRepository;
+    private final ModelRepository modelRepository;
 
-    public AutomakerService(AutomakerRepository automakerRepository) {
+    public AutomakerService(AutomakerRepository automakerRepository, ModelRepository modelRepository) {
         this.automakerRepository = automakerRepository;
+        this.modelRepository = modelRepository;
     }
 
     public List<Automaker> findAll() {
@@ -41,6 +45,10 @@ public class AutomakerService {
     @Transactional
     public void delete(Long id) {
         Automaker automaker = getById(id);
+        // Automakers are shared, so the message doesn't say whose Models use it.
+        if (modelRepository.existsByAutomakerId(id)) {
+            throw new ConflictException("Automaker " + id + " is in use by Models and can't be deleted");
+        }
         automakerRepository.delete(automaker);
     }
 

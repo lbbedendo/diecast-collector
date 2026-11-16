@@ -5,6 +5,7 @@ import com.diecastcollector.api.domain.Series;
 import com.diecastcollector.api.dto.SeriesRequest;
 import com.diecastcollector.api.exception.ConflictException;
 import com.diecastcollector.api.exception.ResourceNotFoundException;
+import com.diecastcollector.api.repository.ModelRepository;
 import com.diecastcollector.api.repository.SeriesRepository;
 import java.util.List;
 import java.util.Optional;
@@ -16,10 +17,12 @@ public class SeriesService {
 
     private final SeriesRepository seriesRepository;
     private final BrandService brandService;
+    private final ModelRepository modelRepository;
 
-    public SeriesService(SeriesRepository seriesRepository, BrandService brandService) {
+    public SeriesService(SeriesRepository seriesRepository, BrandService brandService, ModelRepository modelRepository) {
         this.seriesRepository = seriesRepository;
         this.brandService = brandService;
+        this.modelRepository = modelRepository;
     }
 
     public List<Series> findAll() {
@@ -50,7 +53,12 @@ public class SeriesService {
 
     @Transactional
     public void delete(Long id) {
-        seriesRepository.delete(getById(id));
+        Series series = getById(id);
+        // Series are shared, so the message doesn't say whose Models use it.
+        if (modelRepository.existsBySeriesId(id)) {
+            throw new ConflictException("Series " + id + " is in use by Models and can't be deleted");
+        }
+        seriesRepository.delete(series);
     }
 
     /**
