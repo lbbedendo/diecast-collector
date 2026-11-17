@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
@@ -20,11 +21,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.diecastcollector.app.AppUiState
 import com.diecastcollector.app.model.DiecastModel
 import com.diecastcollector.app.model.displayName
+import com.diecastcollector.app.network.photoAddress
 
 @Composable
 fun CollectionListScreen(
@@ -98,9 +101,15 @@ fun CollectionListScreen(
 private fun ModelRow(model: DiecastModel, onClick: () -> Unit, onDelete: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
+        ModelPhoto(
+            photo = photoAddress(model.photoUrl),
+            contentDescription = null,
+            modifier = Modifier.size(56.dp)
+        )
+        Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
             Text(model.displayName)
             // A Model's Brand comes from its Series; a Model with no Series has no known Brand.
             // The Automaker is already in the title.

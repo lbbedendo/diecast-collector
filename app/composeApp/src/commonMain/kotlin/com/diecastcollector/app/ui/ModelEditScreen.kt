@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,14 +41,22 @@ import com.diecastcollector.app.model.Scale
 import com.diecastcollector.app.model.Series
 import com.diecastcollector.app.model.SeriesRequest
 import com.diecastcollector.app.model.toRequest
+import com.diecastcollector.app.network.photoAddress
+import com.diecastcollector.app.photo.PickedPhoto
+import kotlinx.coroutines.launch
 
-/** Creates a Model, or edits [model] when one is given. */
+/**
+ * Creates a Model, or edits [model] when one is given. A photo taken or picked here is only kept
+ * in the form until Save, which hands it to [onSave] with the Model to upload once it is saved.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModelEditScreen(
     uiState: AppUiState,
     model: DiecastModel? = null,
-    onSave: (ModelRequest) -> Unit,
+    onSave: (ModelRequest, PickedPhoto?) -> Unit,
+    onTakePhoto: suspend () -> PickedPhoto?,
+    onPickPhoto: suspend () -> PickedPhoto?,
     onCreateSeries: suspend (SeriesRequest) -> Result<Series>,
     onCancel: () -> Unit
 ) {
@@ -62,6 +72,9 @@ fun ModelEditScreen(
     var selectedAutomakerId by remember { mutableStateOf(model?.automaker?.id) }
     var selectedSeriesId by remember { mutableStateOf(model?.series?.id) }
     var showNewSeries by remember { mutableStateOf(false) }
+    var newPhoto by remember { mutableStateOf<PickedPhoto?>(null) }
+    var saving by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val newSeriesButtonFocus = remember { FocusRequester() }
 
     if (showNewSeries) {
@@ -80,6 +93,21 @@ fun ModelEditScreen(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)
     ) {
         Text(if (model == null) "Novo modelo" else "Editar modelo")
+
+        ModelPhoto(
+            photo = newPhoto?.bytes ?: photoAddress(model?.photoUrl),
+            contentDescription = "Foto do modelo",
+            emptyText = "Sem foto",
+            modifier = Modifier.padding(top = 12.dp).fillMaxWidth().height(220.dp)
+        )
+        Row {
+            TextButton(onClick = { scope.launch { onTakePhoto()?.let { newPhoto = it } } }) {
+                Text("Tirar foto")
+            }
+            TextButton(onClick = { scope.launch { onPickPhoto()?.let { newPhoto = it } } }) {
+                Text("Escolher da galeria")
+            }
+        }
 
         // Automaker first: the Name that follows leaves it out ("F2004", not "Ferrari F2004").
         SearchablePicker(
@@ -183,7 +211,10 @@ fun ModelEditScreen(
 
         Row(modifier = Modifier.padding(top = 24.dp)) {
             Button(
+                // Saving can take a moment with a photo to upload; a second tap would save twice.
+                enabled = !saving,
                 onClick = {
+                    saving = true
                     // Start from the edited Model: PUT replaces the whole Model, so a field the
                     // form doesn't set is sent back as it was instead of being wiped.
                     val base = model?.toRequest() ?: ModelRequest(
@@ -203,7 +234,8 @@ fun ModelEditScreen(
                             color = color.ifBlank { null },
                             notes = notes.ifBlank { null },
                             seriesNumber = seriesNumber.trim().ifBlank { null }
-                        )
+                        ),
+                        newPhoto
                     )
                 }
             ) {
