@@ -4,6 +4,10 @@ import com.diecastcollector.api.domain.User;
 import com.diecastcollector.api.enums.AuthProvider;
 import com.diecastcollector.api.repository.UserRepository;
 import com.diecastcollector.api.security.AppJwtService;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
@@ -25,7 +29,16 @@ public abstract class AbstractIntegrationTest {
                     .withUsername("diecast_collector")
                     .withPassword("diecast_collector");
 
+    // Not application.yml's default (./data/photos), which is the same folder a local bootRun
+    // serves from: uploads made by tests would pile up among the developer's own photos.
+    static final Path PHOTOS_DIR;
+
     static {
+        try {
+            PHOTOS_DIR = Files.createTempDirectory("diecast-test-photos");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
         // Started once and never explicitly stopped (singleton container pattern): with several
         // test classes sharing this static field, per-class @BeforeAll/@AfterAll would stop and
         // restart it between classes, racing new connections against the restart. Testcontainers'
@@ -42,6 +55,7 @@ public abstract class AbstractIntegrationTest {
         registry.add("spring.datasource.username", POSTGRES::getUsername);
         registry.add("spring.datasource.password", POSTGRES::getPassword);
         // application.yml no longer ships a default (see APP_JWT_SECRET) — tests need their own.
+        registry.add("app.storage.photos-dir", PHOTOS_DIR::toString);
         registry.add(
                 "app.jwt.secret",
                 () -> "test-only-jwt-signing-secret-not-for-production-use-0123456789abcdef");
