@@ -21,6 +21,7 @@ import com.diecastcollector.app.photo.PhotoPicker
 import com.diecastcollector.app.ui.CollectionListScreen
 import com.diecastcollector.app.ui.LoginScreen
 import com.diecastcollector.app.ui.ModelEditScreen
+import com.diecastcollector.app.ui.SystemBackHandler
 import kotlinx.coroutines.launch
 
 private sealed interface Screen {
@@ -54,6 +55,12 @@ fun App(tokenStorage: TokenStorage, photoPicker: PhotoPicker) {
             screen = Screen.Login
             searchQuery = ""
         }
+    }
+
+    // System back on the Model form goes to the list, like its back arrow, instead of leaving the
+    // app. On the list and login screens, back keeps leaving the app.
+    SystemBackHandler(enabled = screen is Screen.NewModel || screen is Screen.EditModel) {
+        screen = Screen.List
     }
 
     MaterialTheme {

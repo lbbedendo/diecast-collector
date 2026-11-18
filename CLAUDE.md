@@ -115,7 +115,7 @@ in English. Exception messages (HTTP client, API) are English and are never show
 
 **Platform-specific code uses Kotlin's `expect`/`actual`**, one pair per concern, each with its own
 file suffix convention: `TokenStorage` (secure storage), `SignInLaunchers` (Google/Apple SDK
-entry points), `PhotoPicker` (camera + gallery), `HttpClientEngine` (Ktor engine per platform — OkHttp on Android,
+entry points), `PhotoPicker` (camera + gallery), `SystemBackHandler` (Android's back button), `HttpClientEngine` (Ktor engine per platform — OkHttp on Android,
 Darwin on iOS). `commonMain` declares the `expect`, `androidMain`/`iosMain` provide the `actual`.
 
 **Network layer:** `DiecastApi` (commonMain) wraps a Ktor `HttpClient` with one method per API
