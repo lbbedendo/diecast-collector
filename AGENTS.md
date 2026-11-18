@@ -141,7 +141,7 @@ cd app
   alias target — the Android `actual` can't be `typealias PlatformContext = Context` because
   `Context` is abstract and modality has to match. Wrap it (`actual class
   PlatformContext(val context: Context)`) instead.
-- Google/Apple sign-in and iOS camera capture are intentionally stubbed with `TODO`s — don't
+- Google/Apple sign-in and the iOS photo picker (camera and gallery) are intentionally stubbed with `TODO`s — don't
   "fix" these without first confirming Google/Apple OAuth credentials exist (see `api/README.md`
   auth flow) and, for iOS, that an `.xcodeproj` has been generated on a Mac.
 - `API_BASE_URL` (`HttpClientConfig.kt`) points at `http://10.0.2.2:8080`, the Android emulator's

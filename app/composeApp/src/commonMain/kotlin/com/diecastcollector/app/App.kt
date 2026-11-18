@@ -12,8 +12,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import coil3.ImageLoader
+import coil3.compose.setSingletonImageLoaderFactory
+import coil3.network.ktor3.KtorNetworkFetcherFactory
 import com.diecastcollector.app.auth.TokenStorage
 import com.diecastcollector.app.model.DiecastModel
+import com.diecastcollector.app.photo.PhotoPicker
 import com.diecastcollector.app.ui.CollectionListScreen
 import com.diecastcollector.app.ui.LoginScreen
 import com.diecastcollector.app.ui.ModelEditScreen
@@ -27,7 +31,13 @@ private sealed interface Screen {
 }
 
 @Composable
-fun App(tokenStorage: TokenStorage) {
+fun App(tokenStorage: TokenStorage, photoPicker: PhotoPicker) {
+    // Model photos load over Ktor, the HTTP client the app already uses for the API.
+    setSingletonImageLoaderFactory { context ->
+        ImageLoader.Builder(context)
+            .components { add(KtorNetworkFetcherFactory()) }
+            .build()
+    }
     val viewModel = remember { AppViewModel(tokenStorage) }
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
@@ -65,24 +75,28 @@ fun App(tokenStorage: TokenStorage) {
                 )
                 Screen.NewModel -> ModelEditScreen(
                     uiState = uiState,
-                    onSave = { request ->
+                    onSave = { request, photo ->
                         scope.launch {
-                            viewModel.createModel(request)
+                            viewModel.createModel(request, photo)
                             screen = Screen.List
                         }
                     },
+                    onTakePhoto = { photoPicker.takePhoto() },
+                    onPickPhoto = { photoPicker.pickFromGallery() },
                     onCreateSeries = { request -> viewModel.createSeries(request) },
                     onCancel = { screen = Screen.List }
                 )
                 is Screen.EditModel -> ModelEditScreen(
                     uiState = uiState,
                     model = current.model,
-                    onSave = { request ->
+                    onSave = { request, photo ->
                         scope.launch {
-                            viewModel.updateModel(current.model.id, request)
+                            viewModel.updateModel(current.model.id, request, photo)
                             screen = Screen.List
                         }
                     },
+                    onTakePhoto = { photoPicker.takePhoto() },
+                    onPickPhoto = { photoPicker.pickFromGallery() },
                     onCreateSeries = { request -> viewModel.createSeries(request) },
                     onCancel = { screen = Screen.List }
                 )

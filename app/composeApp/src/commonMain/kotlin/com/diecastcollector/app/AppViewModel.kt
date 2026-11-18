@@ -10,6 +10,8 @@ import com.diecastcollector.app.model.SeriesRequest
 import com.diecastcollector.app.model.SocialLoginRequest
 import com.diecastcollector.app.network.DiecastApi
 import com.diecastcollector.app.network.createHttpClient
+import com.diecastcollector.app.photo.PickedPhoto
+import com.diecastcollector.app.ui.PHOTO_NOT_SENT
 import com.diecastcollector.app.ui.errorMessage
 import com.diecastcollector.app.ui.sortedForList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -97,22 +99,27 @@ class AppViewModel(private val tokenStorage: TokenStorage) {
                 _uiState.value = _uiState.value.copy(series = (_uiState.value.series + created).sortedBy { it.name })
             }
 
-    suspend fun createModel(request: ModelRequest): DiecastModel? =
-        runCatching { api.createModel(request) }
-            .onSuccess { loadModels() }
-            .onFailure { error -> _uiState.value = _uiState.value.copy(error = errorMessage(error)) }
-            .getOrNull()
+    suspend fun createModel(request: ModelRequest, photo: PickedPhoto? = null): DiecastModel? =
+        saveModel(photo) { api.createModel(request) }
 
-    suspend fun updateModel(id: Long, request: ModelRequest): DiecastModel? =
-        runCatching { api.updateModel(id, request) }
-            .onSuccess { loadModels() }
-            .onFailure { error -> _uiState.value = _uiState.value.copy(error = errorMessage(error)) }
-            .getOrNull()
+    suspend fun updateModel(id: Long, request: ModelRequest, photo: PickedPhoto? = null): DiecastModel? =
+        saveModel(photo) { api.updateModel(id, request) }
 
-    suspend fun uploadPhoto(modelId: Long, fileName: String, bytes: ByteArray) {
-        runCatching { api.uploadPhoto(modelId, fileName, bytes) }
-            .onSuccess { loadModels() }
-            .onFailure { error -> _uiState.value = _uiState.value.copy(error = errorMessage(error)) }
+    /**
+     * Saves a Model, then uploads its new [photo], if any: the upload needs the saved Model's id,
+     * which a new Model only has once created. A failed upload keeps the saved Model and says so.
+     */
+    private suspend fun saveModel(photo: PickedPhoto?, save: suspend () -> DiecastModel): DiecastModel? {
+        val saved = runCatching { save() }.getOrElse { error ->
+            _uiState.value = _uiState.value.copy(error = errorMessage(error))
+            return null
+        }
+        val photoFailed = photo != null &&
+            runCatching { api.uploadPhoto(saved.id, photo.fileName, photo.bytes) }.isFailure
+        loadModels()
+        // After loadModels(), which clears the error when it starts.
+        if (photoFailed) _uiState.value = _uiState.value.copy(error = PHOTO_NOT_SENT)
+        return saved
     }
 
     suspend fun deleteModel(id: Long) {

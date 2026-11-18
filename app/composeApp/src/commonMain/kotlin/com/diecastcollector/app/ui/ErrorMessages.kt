@@ -8,6 +8,9 @@ import com.diecastcollector.app.network.ApiException
  * here, in pt-BR, from the kind of failure. Pass [onConflict] where a 409 has a specific meaning
  * (e.g. a duplicate Series).
  */
+/** Shown when a Model was saved but its new photo didn't reach the API. */
+internal const val PHOTO_NOT_SENT = "O modelo foi salvo, mas não foi possível enviar a foto. Tente de novo editando o modelo."
+
 internal fun errorMessage(error: Throwable, onConflict: String = "Já existe um registro igual."): String =
     when (error) {
         is ApiException -> when (error.status) {

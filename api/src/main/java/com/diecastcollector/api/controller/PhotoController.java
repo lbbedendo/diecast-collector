@@ -21,12 +21,15 @@ public class PhotoController {
     private final Path photosDir;
 
     public PhotoController(@Value("${app.storage.photos-dir}") String photosDir) {
-        this.photosDir = Path.of(photosDir);
+        // Normalized like the requested file below, or startsWith() rejects every photo when the
+        // directory is relative: "./data/photos/x.jpg" normalizes to "data/photos/x.jpg".
+        this.photosDir = Path.of(photosDir).toAbsolutePath().normalize();
     }
 
     @GetMapping("/photos/{filename}")
     public ResponseEntity<Resource> getPhoto(@PathVariable String filename) throws IOException {
         Path file = photosDir.resolve(filename).normalize();
+        // Rejects a filename that climbs out of the photos directory (e.g. "../secret").
         if (!file.startsWith(photosDir) || !Files.exists(file)) {
             return ResponseEntity.notFound().build();
         }

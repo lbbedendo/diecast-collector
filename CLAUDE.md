@@ -115,7 +115,7 @@ in English. Exception messages (HTTP client, API) are English and are never show
 
 **Platform-specific code uses Kotlin's `expect`/`actual`**, one pair per concern, each with its own
 file suffix convention: `TokenStorage` (secure storage), `SignInLaunchers` (Google/Apple SDK
-entry points), `CameraCapture`, `HttpClientEngine` (Ktor engine per platform — OkHttp on Android,
+entry points), `PhotoPicker` (camera + gallery), `HttpClientEngine` (Ktor engine per platform — OkHttp on Android,
 Darwin on iOS). `commonMain` declares the `expect`, `androidMain`/`iosMain` provide the `actual`.
 
 **Network layer:** `DiecastApi` (commonMain) wraps a Ktor `HttpClient` with one method per API
@@ -124,7 +124,7 @@ refresh or logout takes effect on the very next call with no extra wiring.
 
 ## Known gaps (intentional — see the two READMEs for the full list)
 
-- Google/Apple sign-in and iOS camera capture are stubbed with `TODO`s — they need API
+- Google/Apple sign-in and the iOS photo picker (camera and gallery) are stubbed with `TODO`s — they need API
   credentials or an Xcode project that don't exist in this environment, not a code fix.
 - No pagination/filtering on `/models`, no refresh-token flow, local-disk-only photo storage.
 - Android has no launcher icon yet (manifest omits `android:icon`).

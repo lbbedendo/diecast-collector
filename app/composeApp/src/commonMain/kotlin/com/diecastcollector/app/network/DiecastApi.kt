@@ -86,15 +86,22 @@ class DiecastApi(
         client.delete("$baseUrl/models/$id") { authorized() }
     }
 
-    suspend fun uploadPhoto(modelId: Long, fileName: String, bytes: ByteArray): PhotoUploadResponse =
-        client.submitFormWithBinaryData(
+    /** Throws [ApiException] when the API rejects the upload (e.g. a 404 for someone else's Model). */
+    suspend fun uploadPhoto(modelId: Long, fileName: String, bytes: ByteArray): PhotoUploadResponse {
+        val response = client.submitFormWithBinaryData(
             url = "$baseUrl/models/$modelId/photo",
             formData = formData {
                 append("file", bytes, Headers.build {
+                    append(HttpHeaders.ContentType, "image/jpeg")
                     append(HttpHeaders.ContentDisposition, "filename=\"$fileName\"")
                 })
             }
-        ) { authorized() }.body()
+        ) { authorized() }
+        if (!response.status.isSuccess()) {
+            throw ApiException(response.status.value, apiErrorMessage(response.status.value, response.bodyAsText()))
+        }
+        return response.body()
+    }
 
     suspend fun getAutomakers(): List<Automaker> =
         client.get("$baseUrl/automakers") { authorized() }.body()
