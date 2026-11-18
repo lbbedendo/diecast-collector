@@ -58,13 +58,18 @@ public class ModelController {
         // Fails with 404 first if this model isn't (or isn't yet) owned by the caller.
         modelService.getForOwner(id, currentUser.id());
         String photoUrl = photoStorageService.store(file);
-        modelService.updatePhotoUrl(id, currentUser.id(), photoUrl);
+        String replaced = modelService.updatePhotoUrl(id, currentUser.id(), photoUrl);
+        // After the service's transaction has committed: if it had failed, the old photo would
+        // still be in use, and only the new, unreferenced file would be left behind.
+        photoStorageService.delete(replaced);
         return new PhotoUploadResponse(photoUrl);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        modelService.delete(id, currentUser.id());
+        String photoUrl = modelService.delete(id, currentUser.id());
+        // After the service's transaction has committed, as in uploadPhoto.
+        photoStorageService.delete(photoUrl);
         return ResponseEntity.noContent().build();
     }
 }

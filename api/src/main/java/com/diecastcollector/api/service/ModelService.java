@@ -48,16 +48,22 @@ public class ModelService {
         return modelRepository.save(model);
     }
 
+    /** @return the photo URL this one replaced (null if none), so its file can be deleted. */
     @Transactional
-    public void updatePhotoUrl(Long id, Long ownerId, String photoUrl) {
+    public String updatePhotoUrl(Long id, Long ownerId, String photoUrl) {
         Model model = getForOwner(id, ownerId);
+        String previous = model.getPhotoUrl();
         model.setPhotoUrl(photoUrl);
         modelRepository.save(model);
+        return previous;
     }
 
+    /** @return the deleted Model's photo URL (null if none), so its file can be deleted. */
     @Transactional
-    public void delete(Long id, Long ownerId) {
-        modelRepository.delete(getForOwner(id, ownerId));
+    public String delete(Long id, Long ownerId) {
+        Model model = getForOwner(id, ownerId);
+        modelRepository.delete(model);
+        return model.getPhotoUrl();
     }
 
     private void applyRequest(Model model, ModelRequest request) {
