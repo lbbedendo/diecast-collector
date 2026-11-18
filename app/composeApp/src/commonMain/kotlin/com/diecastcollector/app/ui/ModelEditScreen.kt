@@ -9,12 +9,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
@@ -89,160 +93,172 @@ fun ModelEditScreen(
         )
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)
-    ) {
-        Text(if (model == null) "Novo modelo" else "Editar modelo")
-
-        ModelPhoto(
-            photo = newPhoto?.bytes ?: photoAddress(model?.photoUrl),
-            contentDescription = "Foto do modelo",
-            emptyText = "Sem foto",
-            modifier = Modifier.padding(top = 12.dp).fillMaxWidth().height(220.dp)
-        )
-        Row {
-            TextButton(onClick = { scope.launch { onTakePhoto()?.let { newPhoto = it } } }) {
-                Text("Tirar foto")
-            }
-            TextButton(onClick = { scope.launch { onPickPhoto()?.let { newPhoto = it } } }) {
-                Text("Escolher da galeria")
-            }
-        }
-
-        // Automaker first: the Name that follows leaves it out ("F2004", not "Ferrari F2004").
-        SearchablePicker(
-            label = "Montadora",
-            options = uiState.automakers.map { it.id to it.name },
-            selectedId = selectedAutomakerId,
-            onSelect = { selectedAutomakerId = it }
-        )
-
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Nome") },
-            placeholder = { Text("Nome do veículo, sem a montadora (ex.: F2004)") },
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
-        )
-
-        OutlinedTextField(
-            value = vehicleYear,
-            onValueChange = { input -> vehicleYear = input.filter(Char::isDigit).take(4) },
-            label = { Text("Ano do veículo (carro real, ex.: 2004)") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
-        )
-
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Outside the scrolling part, so going back is always one tap away, however far down the form is.
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+            modifier = Modifier.fillMaxWidth().padding(start = 4.dp, top = 4.dp, end = 16.dp)
         ) {
-            LabeledPicker(
-                label = "Série",
-                options = uiState.series.map { it.id to seriesLabel(it) },
-                selectedId = selectedSeriesId,
-                onSelect = { selectedSeriesId = it },
-                modifier = Modifier.weight(1f)
+            // Same as Cancelar: leaves without saving.
+            IconButton(onClick = onCancel) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+            }
+            Text(if (model == null) "Novo modelo" else "Editar modelo", style = MaterialTheme.typography.titleLarge)
+        }
+
+        Column(
+            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+        ) {
+            ModelPhoto(
+                photo = newPhoto?.bytes ?: photoAddress(model?.photoUrl),
+                contentDescription = "Foto do modelo",
+                modifier = Modifier.padding(top = 4.dp).fillMaxWidth().height(220.dp)
             )
-            // Create a Series in place instead of leaving the form.
-            TextButton(
-                onClick = {
-                    // Park focus on this button: when the dialog closes, focus comes back here
-                    // instead of jumping to the first text field and reopening the keyboard.
-                    newSeriesButtonFocus.requestFocus()
-                    showNewSeries = true
-                },
-                modifier = Modifier.padding(start = 8.dp).focusRequester(newSeriesButtonFocus)
-            ) {
-                Text("+", style = MaterialTheme.typography.headlineSmall)
-            }
-        }
-
-        OutlinedTextField(
-            value = seriesNumber,
-            onValueChange = { seriesNumber = it },
-            label = { Text("Número na série") },
-            placeholder = { Text("Como impresso na embalagem (ex.: 10/10)") },
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
-        )
-
-        LabeledPicker(
-            label = "Escala",
-            options = Scale.entries.map { it to it.label },
-            selectedId = scale,
-            onSelect = { scale = it }
-        )
-
-        LabeledPicker(
-            label = "Embalagem",
-            options = Packaging.entries.map { it to it.label },
-            selectedId = packaging,
-            onSelect = { packaging = it }
-        )
-
-        LabeledPicker(
-            label = "Condição",
-            options = Condition.entries.map { it to it.label },
-            selectedId = condition,
-            onSelect = { condition = it }
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
-        ) {
-            Checkbox(checked = chase, onCheckedChange = { chase = it })
-            Text("Chase (variante rara, ex.: um Treasure Hunt)")
-        }
-
-        OutlinedTextField(
-            value = color,
-            onValueChange = { color = it },
-            label = { Text("Cor") },
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
-        )
-
-        OutlinedTextField(
-            value = notes,
-            onValueChange = { notes = it },
-            label = { Text("Observações") },
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
-        )
-
-        Row(modifier = Modifier.padding(top = 24.dp)) {
-            Button(
-                // Saving can take a moment with a photo to upload; a second tap would save twice.
-                enabled = !saving,
-                onClick = {
-                    saving = true
-                    // Start from the edited Model: PUT replaces the whole Model, so a field the
-                    // form doesn't set is sent back as it was instead of being wiped.
-                    val base = model?.toRequest() ?: ModelRequest(
-                        name = "", automakerId = null, seriesId = null, scale = null, packaging = null,
-                        condition = null, vehicleYear = null, color = null, notes = null
-                    )
-                    onSave(
-                        base.copy(
-                            name = name,
-                            automakerId = selectedAutomakerId,
-                            seriesId = selectedSeriesId,
-                            scale = scale,
-                            packaging = packaging,
-                            condition = condition,
-                            chase = chase,
-                            vehicleYear = vehicleYear.toIntOrNull(),
-                            color = color.ifBlank { null },
-                            notes = notes.ifBlank { null },
-                            seriesNumber = seriesNumber.trim().ifBlank { null }
-                        ),
-                        newPhoto
-                    )
+            Row {
+                TextButton(onClick = { scope.launch { onTakePhoto()?.let { newPhoto = it } } }) {
+                    Text("Tirar foto")
                 }
-            ) {
-                Text("Salvar")
+                TextButton(onClick = { scope.launch { onPickPhoto()?.let { newPhoto = it } } }) {
+                    Text("Escolher da galeria")
+                }
             }
-            TextButton(onClick = onCancel, modifier = Modifier.padding(start = 8.dp)) {
-                Text("Cancelar")
+
+            // Automaker first: the Name that follows leaves it out ("F2004", not "Ferrari F2004").
+            SearchablePicker(
+                label = "Montadora",
+                options = uiState.automakers.map { it.id to it.name },
+                selectedId = selectedAutomakerId,
+                onSelect = { selectedAutomakerId = it }
+            )
+
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Nome") },
+                placeholder = { Text("Nome do veículo, sem a montadora (ex.: F2004)") },
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+            )
+
+            OutlinedTextField(
+                value = vehicleYear,
+                onValueChange = { input -> vehicleYear = input.filter(Char::isDigit).take(4) },
+                label = { Text("Ano do veículo (carro real, ex.: 2004)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+            ) {
+                LabeledPicker(
+                    label = "Série",
+                    options = uiState.series.map { it.id to seriesLabel(it) },
+                    selectedId = selectedSeriesId,
+                    onSelect = { selectedSeriesId = it },
+                    modifier = Modifier.weight(1f)
+                )
+                // Create a Series in place instead of leaving the form.
+                TextButton(
+                    onClick = {
+                        // Park focus on this button: when the dialog closes, focus comes back here
+                        // instead of jumping to the first text field and reopening the keyboard.
+                        newSeriesButtonFocus.requestFocus()
+                        showNewSeries = true
+                    },
+                    modifier = Modifier.padding(start = 8.dp).focusRequester(newSeriesButtonFocus)
+                ) {
+                    Text("+", style = MaterialTheme.typography.headlineSmall)
+                }
+            }
+
+            OutlinedTextField(
+                value = seriesNumber,
+                onValueChange = { seriesNumber = it },
+                label = { Text("Número na série") },
+                placeholder = { Text("Como impresso na embalagem (ex.: 10/10)") },
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+            )
+
+            LabeledPicker(
+                label = "Escala",
+                options = Scale.entries.map { it to it.label },
+                selectedId = scale,
+                onSelect = { scale = it }
+            )
+
+            LabeledPicker(
+                label = "Embalagem",
+                options = Packaging.entries.map { it to it.label },
+                selectedId = packaging,
+                onSelect = { packaging = it }
+            )
+
+            LabeledPicker(
+                label = "Condição",
+                options = Condition.entries.map { it to it.label },
+                selectedId = condition,
+                onSelect = { condition = it }
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+            ) {
+                Checkbox(checked = chase, onCheckedChange = { chase = it })
+                Text("Chase (variante rara, ex.: um Treasure Hunt)")
+            }
+
+            OutlinedTextField(
+                value = color,
+                onValueChange = { color = it },
+                label = { Text("Cor") },
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+            )
+
+            OutlinedTextField(
+                value = notes,
+                onValueChange = { notes = it },
+                label = { Text("Observações") },
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+            )
+
+            Row(modifier = Modifier.padding(top = 24.dp)) {
+                Button(
+                    // Saving can take a moment with a photo to upload; a second tap would save twice.
+                    enabled = !saving,
+                    onClick = {
+                        saving = true
+                        // Start from the edited Model: PUT replaces the whole Model, so a field the
+                        // form doesn't set is sent back as it was instead of being wiped.
+                        val base = model?.toRequest() ?: ModelRequest(
+                            name = "", automakerId = null, seriesId = null, scale = null, packaging = null,
+                            condition = null, vehicleYear = null, color = null, notes = null
+                        )
+                        onSave(
+                            base.copy(
+                                name = name,
+                                automakerId = selectedAutomakerId,
+                                seriesId = selectedSeriesId,
+                                scale = scale,
+                                packaging = packaging,
+                                condition = condition,
+                                chase = chase,
+                                vehicleYear = vehicleYear.toIntOrNull(),
+                                color = color.ifBlank { null },
+                                notes = notes.ifBlank { null },
+                                seriesNumber = seriesNumber.trim().ifBlank { null }
+                            ),
+                            newPhoto
+                        )
+                    }
+                ) {
+                    Text("Salvar")
+                }
+                TextButton(onClick = onCancel, modifier = Modifier.padding(start = 8.dp)) {
+                    Text("Cancelar")
+                }
             }
         }
     }
