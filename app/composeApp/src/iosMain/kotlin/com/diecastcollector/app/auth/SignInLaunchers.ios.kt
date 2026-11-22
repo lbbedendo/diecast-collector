@@ -7,12 +7,11 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * TODO: wire up `GIDSignIn.sharedInstance.signInWithPresentingViewController(...)` from the
  * GoogleSignIn CocoaPod/SPM package once added to the Xcode project, resolving the ID token
- * from the returned `GIDGoogleUser`.
+ * from the returned `GIDGoogleUser`. Until then it fails as not configured, so the login screen
+ * says so instead of doing nothing.
  */
 actual class GoogleSignInLauncher {
-    actual suspend fun signIn(): SocialSignInResult? = suspendCancellableCoroutine { continuation ->
-        continuation.resume(null) { _, _, _ -> }
-    }
+    actual suspend fun signIn(): SocialSignInResult? = throw SignInFailure(SignInFailure.Kind.NOT_CONFIGURED)
 }
 
 /**

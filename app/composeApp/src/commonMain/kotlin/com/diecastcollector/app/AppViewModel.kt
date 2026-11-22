@@ -1,5 +1,7 @@
 package com.diecastcollector.app
 
+import com.diecastcollector.app.auth.GoogleSignInLauncher
+import com.diecastcollector.app.auth.SocialSignInResult
 import com.diecastcollector.app.auth.TokenStorage
 import com.diecastcollector.app.model.Automaker
 import com.diecastcollector.app.model.Brand
@@ -13,6 +15,7 @@ import com.diecastcollector.app.network.createHttpClient
 import com.diecastcollector.app.photo.PickedPhoto
 import com.diecastcollector.app.ui.PHOTO_NOT_SENT
 import com.diecastcollector.app.ui.errorMessage
+import com.diecastcollector.app.ui.signInErrorMessage
 import com.diecastcollector.app.ui.sortedForList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,15 +45,20 @@ class AppViewModel(private val tokenStorage: TokenStorage) {
         _uiState.value = _uiState.value.copy(isLoggedIn = tokenStorage.load() != null)
     }
 
-    suspend fun login(provider: String, idToken: String) {
+    /**
+     * Runs a provider's sign-in flow ([launch], e.g. [GoogleSignInLauncher.signIn]) and trades its
+     * ID token for the API's own token. Cancelling the flow just stops, with no error.
+     */
+    suspend fun signIn(launch: suspend () -> SocialSignInResult?) {
         _uiState.value = _uiState.value.copy(isLoading = true, error = null)
         runCatching {
-            api.login(SocialLoginRequest(provider = provider, idToken = idToken))
+            val signedIn = launch() ?: return@runCatching null
+            api.login(SocialLoginRequest(provider = signedIn.provider, idToken = signedIn.idToken))
         }.onSuccess { response ->
-            tokenStorage.save(response.accessToken)
-            _uiState.value = _uiState.value.copy(isLoggedIn = true, isLoading = false)
+            if (response != null) tokenStorage.save(response.accessToken)
+            _uiState.value = _uiState.value.copy(isLoggedIn = response != null, isLoading = false)
         }.onFailure { error ->
-            _uiState.value = _uiState.value.copy(isLoading = false, error = errorMessage(error))
+            _uiState.value = _uiState.value.copy(isLoading = false, error = signInErrorMessage(error))
         }
     }
 

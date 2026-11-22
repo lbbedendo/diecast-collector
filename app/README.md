@@ -30,6 +30,12 @@ Real and working:
 - The Ktor API client, wired to every `/auth`, `/models`, `/automakers`, `/brands`,
   `/series` endpoint on the API
 - Android token storage
+- Google Sign-In on Android, through Credential Manager (`GetSignInWithGoogleOption`): the ID
+  token goes to `POST /auth/google`. The build needs the Web OAuth client ID Google issues that
+  token for — the API's `GOOGLE_CLIENT_ID` — as `google.serverClientId` in `app/local.properties`
+  (gitignored) or the `GOOGLE_CLIENT_ID` environment variable. Without it the button says sign-in
+  isn't configured. Google also needs an Android OAuth client in the same Cloud project with the
+  app's package name and the signing key's SHA-1, and the device a Google account
 - Model photos: taken with the camera (`ActivityResultContracts.TakePicture` + `FileProvider`) or
   picked from the gallery (the system Photo Picker, no storage permission), shrunk to 1600px and
   turned upright (EXIF) on the device, uploaded after the Model is saved, and shown with Coil 3 as
@@ -37,16 +43,16 @@ Real and working:
 
 Stubbed with a `TODO` and a comment explaining the real implementation, because they need
 either API credentials you haven't created yet or an Xcode project this container can't produce:
-- Google Sign-In (Android: Credential Manager API; iOS: GoogleSignIn-iOS SDK)
+- Google Sign-In on iOS (GoogleSignIn-iOS SDK)
 - Sign in with Apple (iOS: `AuthenticationServices`; there's no first-party Apple SDK on Android
   — Apple's own guidance there is a web-based redirect flow)
 - iOS photo picker (`UIImagePickerController` for the camera, `PHPickerViewController` for the gallery)
 - Secure token storage (currently plain `SharedPreferences`/`NSUserDefaults` — fine for
   developing against, not for shipping)
 
-None of these block building/running the app today — signing in with Google/Apple and taking a
-photo on iOS will visibly "fail" (return to the login screen / no photo) until wired up, and
-Android photos already work end-to-end.
+None of these block building/running the app today — signing in with Apple, or with Google on
+iOS, and taking a photo on iOS will visibly "fail" (stay on the login screen / no photo) until
+wired up; Google sign-in and photos already work end-to-end on Android.
 
 ## Model form fields
 
