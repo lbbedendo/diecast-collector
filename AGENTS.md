@@ -141,7 +141,7 @@ cd app
   alias target — the Android `actual` can't be `typealias PlatformContext = Context` because
   `Context` is abstract and modality has to match. Wrap it (`actual class
   PlatformContext(val context: Context)`) instead.
-- Google/Apple sign-in and the iOS photo picker (camera and gallery) are intentionally stubbed with `TODO`s — don't
+- Sign in with Apple, Google sign-in on iOS, and the iOS photo picker (camera and gallery) are intentionally stubbed with `TODO`s — don't
   "fix" these without first confirming Google/Apple OAuth credentials exist (see `api/README.md`
   auth flow) and, for iOS, that an `.xcodeproj` has been generated on a Mac.
 - `API_BASE_URL` (`HttpClientConfig.kt`) points at `http://10.0.2.2:8080`, the Android emulator's
@@ -151,8 +151,10 @@ cd app
   standard `src/debug/`, **not** the KMP-layout-v2 `src/androidDebug/` convention used for Kotlin
   sources; AGP doesn't look there for manifests even though `kotlin.mpp.androidSourceSetLayoutVersion=2`
   is set in `gradle.properties`.
-- There's no real sign-in flow wired up at all yet (see above), so `LoginScreen` has a "Dev login
-  (local only)" button calling `AppViewModel.devLogin()` → `DiecastApi.devLogin()` →
+- Google sign-in needs a Google account on the device, and a build with the Web client ID
+  (`google.serverClientId` in `app/local.properties`, or `GOOGLE_CLIENT_ID` exported); without
+  one, `BuildConfig.GOOGLE_SERVER_CLIENT_ID` is empty and the button says it isn't configured. So
+  `LoginScreen` also has a "Dev login (local only)" button calling `AppViewModel.devLogin()` → `DiecastApi.devLogin()` →
   `POST /auth/dev` (see the matching API-side note on `DevAuthController`). It's a visible,
   always-present button rather than something built-type-gated, because the real safety boundary
   is server-side: against any backend without dev-login enabled, it just 404s.
@@ -166,12 +168,20 @@ cd app
 - The debug keystore (`~/.android/debug.keystore`) was generated manually with `keytool`, not by
   Android Studio — its SHA-1 is what's registered as the Android OAuth client's fingerprint in
   Google Cloud Console. If it's ever regenerated, the Google Cloud Console Android client needs
-  its SHA-1 updated to match, or Google sign-in will fail to recognize the app.
+  its SHA-1 updated to match, or Google sign-in will fail to recognize the app. That failure
+  looks like this: the account sheet opens, picking an account shows "Não foi possível entrar com
+  o Google", and logcat has `[8] Unknown error [status=UNREGISTERED_ON_API_CONSOLE]` then
+  `[16] Account reauth failed.` from `Auth.Api.Credentials`. Credential Manager hands it to the app
+  as a *cancellation*, which is why `isCancelledByUser` checks the message. The Android OAuth
+  client (package `com.diecastcollector.app` + that SHA-1) must be in the **same** Cloud project
+  as the Web client ID used as `GOOGLE_CLIENT_ID` (the number before the `-` in the client ID).
 
 ## General conventions
 
 - Don't add default values back into secrets (`APP_JWT_SECRET`, `GOOGLE_CLIENT_ID`,
-  `APPLE_CLIENT_ID`) — they were deliberately removed from `application.yml`.
+  `APPLE_CLIENT_ID`) — they were deliberately removed from `application.yml`. With
+  `GOOGLE_CLIENT_ID` unset, `GoogleTokenVerifier` rejects every token rather than skipping the
+  audience check.
 - Multi-tenancy matters: every `Model` read/write must stay scoped to `owner_id` /
   `CurrentUser.id()`. `Automaker`/`Brand`/`Series` are intentionally global/shared, not
   per-user — don't add ownership scoping to those without discussing it first (it'd be a real

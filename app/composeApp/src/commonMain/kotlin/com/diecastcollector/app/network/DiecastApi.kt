@@ -44,6 +44,7 @@ class DiecastApi(
         }
     }
 
+    /** Throws [ApiException] when the API rejects the ID token. */
     suspend fun login(request: SocialLoginRequest): AuthResponse {
         // The backend has one endpoint per provider (see AuthController), not a unified
         // /auth/login — route by the provider string set on SocialSignInResult ("google"/"apple").
@@ -52,10 +53,15 @@ class DiecastApi(
             "apple" -> "apple"
             else -> throw IllegalArgumentException("Unsupported auth provider: ${request.provider}")
         }
-        return client.post("$baseUrl/auth/$endpoint") {
+        val response = client.post("$baseUrl/auth/$endpoint") {
             contentType(ContentType.Application.Json)
             setBody(request)
-        }.body()
+        }
+        // A 401 here means the API turned the provider's ID token down.
+        if (!response.status.isSuccess()) {
+            throw ApiException(response.status.value, apiErrorMessage(response.status.value, response.bodyAsText()))
+        }
+        return response.body()
     }
 
     // TODO: remove once real Google/Apple sign-in is wired up. Only works against a local API

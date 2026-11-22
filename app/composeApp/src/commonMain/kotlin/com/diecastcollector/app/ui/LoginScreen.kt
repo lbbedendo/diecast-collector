@@ -17,7 +17,7 @@ import com.diecastcollector.app.AppUiState
 @Composable
 fun LoginScreen(
     uiState: AppUiState,
-    onLogin: (provider: String, idToken: String) -> Unit,
+    onGoogleLogin: () -> Unit,
     // TODO: remove once real Google/Apple sign-in is wired up — see AppViewModel.devLogin().
     onDevLogin: () -> Unit
 ) {
@@ -36,14 +36,11 @@ fun LoginScreen(
             Text(error, modifier = Modifier.padding(top = 8.dp))
         }
 
-        // The platform-specific sign-in launchers (GoogleSignInLauncher / AppleSignInLauncher)
-        // are wired up by the app entry point on each platform, which owns the Activity/
-        // presenting UIViewController they need; the resulting SocialSignInResult is passed
-        // here via onLogin.
-        Button(onClick = { /* Wired to GoogleSignInLauncher by the platform entry point */ }, modifier = Modifier.padding(top = 24.dp)) {
+        Button(onClick = onGoogleLogin, enabled = !uiState.isLoading, modifier = Modifier.padding(top = 24.dp)) {
             Text("Entrar com o Google")
         }
-        Button(onClick = { /* Wired to AppleSignInLauncher by the platform entry point */ }, modifier = Modifier.padding(top = 12.dp)) {
+        // TODO: wire to AppleSignInLauncher, like the Google button.
+        Button(onClick = { }, modifier = Modifier.padding(top = 12.dp)) {
             Text("Entrar com a Apple")
         }
 

@@ -124,8 +124,9 @@ refresh or logout takes effect on the very next call with no extra wiring.
 
 ## Known gaps (intentional — see the two READMEs for the full list)
 
-- Google/Apple sign-in and the iOS photo picker (camera and gallery) are stubbed with `TODO`s — they need API
-  credentials or an Xcode project that don't exist in this environment, not a code fix.
+- Sign in with Apple, Google sign-in on iOS, and the iOS photo picker (camera and gallery) are stubbed
+  with `TODO`s — they need API credentials or an Xcode project that don't exist in this environment,
+  not a code fix. Google sign-in works on Android (see `app/README.md` for the client ID it needs).
 - No pagination/filtering on `/models`, no refresh-token flow, local-disk-only photo storage.
 - Android has no launcher icon yet (manifest omits `android:icon`).
 

@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.network.ktor3.KtorNetworkFetcherFactory
+import com.diecastcollector.app.auth.GoogleSignInLauncher
 import com.diecastcollector.app.auth.TokenStorage
 import com.diecastcollector.app.model.DiecastModel
 import com.diecastcollector.app.photo.PhotoPicker
@@ -32,7 +33,7 @@ private sealed interface Screen {
 }
 
 @Composable
-fun App(tokenStorage: TokenStorage, photoPicker: PhotoPicker) {
+fun App(tokenStorage: TokenStorage, photoPicker: PhotoPicker, googleSignIn: GoogleSignInLauncher) {
     // Model photos load over Ktor, the HTTP client the app already uses for the API.
     setSingletonImageLoaderFactory { context ->
         ImageLoader.Builder(context)
@@ -68,7 +69,7 @@ fun App(tokenStorage: TokenStorage, photoPicker: PhotoPicker) {
             when (val current = screen) {
                 Screen.Login -> LoginScreen(
                     uiState = uiState,
-                    onLogin = { provider, idToken -> scope.launch { viewModel.login(provider, idToken) } },
+                    onGoogleLogin = { scope.launch { viewModel.signIn { googleSignIn.signIn() } } },
                     onDevLogin = { scope.launch { viewModel.devLogin() } }
                 )
                 Screen.List -> CollectionListScreen(

@@ -1,21 +1,59 @@
 package com.diecastcollector.app.auth
 
+import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
- * Wraps Android's Credential Manager (Google) sign-in flow.
- *
- * TODO: wire up `androidx.credentials.CredentialManager` and
- * `com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption`
- * once the corresponding Gradle dependencies are added; this returns the ID
- * token from the resulting `GoogleIdTokenCredential`.
+ * Signs in with Google through Android's Credential Manager, which shows Google's account sheet
+ * and returns an ID token issued for [serverClientId] — the Web OAuth client ID the API checks as
+ * the token's audience (its `GOOGLE_CLIENT_ID`).
  */
-actual class GoogleSignInLauncher(private val activity: ComponentActivity) {
-    actual suspend fun signIn(): SocialSignInResult? = suspendCancellableCoroutine { continuation ->
-        // TODO: launch CredentialManager.create(activity).getCredential(...) and resolve
-        // the ID token into a SocialSignInResult("google", idToken).
-        continuation.resume(null) { _, _, _ -> }
+actual class GoogleSignInLauncher(
+    private val activity: ComponentActivity,
+    private val serverClientId: String
+) {
+    actual suspend fun signIn(): SocialSignInResult? {
+        if (serverClientId.isBlank()) throw SignInFailure(SignInFailure.Kind.NOT_CONFIGURED)
+
+        // The "Sign in with Google" option is the one meant for a button tap: it lists every
+        // Google account on the device and lets the Collector add one.
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(GetSignInWithGoogleOption.Builder(serverClientId).build())
+            .build()
+        val credential = try {
+            CredentialManager.create(activity).getCredential(activity, request).credential
+        } catch (e: GetCredentialCancellationException) {
+            if (isCancelledByUser(e.message)) return null
+            Log.w(TAG, "Google sign-in failed: ${e.message}", e)
+            throw SignInFailure(SignInFailure.Kind.FAILED, e)
+        } catch (e: NoCredentialException) {
+            throw SignInFailure(SignInFailure.Kind.NO_ACCOUNT, e)
+        } catch (e: GetCredentialException) {
+            Log.w(TAG, "Google sign-in failed: ${e.message}", e)
+            throw SignInFailure(SignInFailure.Kind.FAILED, e)
+        }
+
+        if (credential !is CustomCredential ||
+            credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+        ) {
+            throw SignInFailure(SignInFailure.Kind.FAILED)
+        }
+        val idToken = try {
+            GoogleIdTokenCredential.createFrom(credential.data).idToken
+        } catch (e: GoogleIdTokenParsingException) {
+            throw SignInFailure(SignInFailure.Kind.FAILED, e)
+        }
+        return SocialSignInResult("google", idToken)
     }
 }
 
@@ -31,3 +69,14 @@ actual class AppleSignInLauncher(private val activity: ComponentActivity) {
         continuation.resume(null) { _, _, _ -> }
     }
 }
+
+/**
+ * Google reports its own failures as a cancellation too — e.g. "[16] Account reauth failed." when
+ * the app isn't registered in the Cloud project (no Android OAuth client with this package name
+ * and signing SHA-1). Only the Collector backing out of the sheet ("[16] Cancelled by user.")
+ * should stay silent; the message is the only thing telling the two apart.
+ */
+internal fun isCancelledByUser(message: String?): Boolean =
+    message.orEmpty().contains("cancelled by user", ignoreCase = true)
+
+private const val TAG = "GoogleSignIn"
