@@ -106,7 +106,13 @@ fun App(tokenStorage: TokenStorage, photoPicker: PhotoPicker, googleSignIn: Goog
                     onTakePhoto = { photoPicker.takePhoto() },
                     onPickPhoto = { photoPicker.pickFromGallery() },
                     onCreateSeries = { request -> viewModel.createSeries(request) },
-                    onCancel = { screen = Screen.List }
+                    onCancel = { screen = Screen.List },
+                    onDelete = {
+                        scope.launch {
+                            viewModel.deleteModel(current.model.id)
+                            screen = Screen.List
+                        }
+                    }
                 )
             }
         }

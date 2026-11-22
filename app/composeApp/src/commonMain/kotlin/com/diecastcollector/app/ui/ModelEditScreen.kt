@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
@@ -62,7 +63,9 @@ fun ModelEditScreen(
     onTakePhoto: suspend () -> PickedPhoto?,
     onPickPhoto: suspend () -> PickedPhoto?,
     onCreateSeries: suspend (SeriesRequest) -> Result<Series>,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    // Only for an existing Model: a new one has nothing to delete yet.
+    onDelete: (() -> Unit)? = null
 ) {
     var name by remember { mutableStateOf(model?.name ?: "") }
     var scale by remember { mutableStateOf(model?.scale) }
@@ -78,8 +81,20 @@ fun ModelEditScreen(
     var showNewSeries by remember { mutableStateOf(false) }
     var newPhoto by remember { mutableStateOf<PickedPhoto?>(null) }
     var saving by remember { mutableStateOf(false) }
+    var confirmDelete by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val newSeriesButtonFocus = remember { FocusRequester() }
+
+    if (confirmDelete && model != null && onDelete != null) {
+        DeleteModelDialog(
+            model = model,
+            onConfirm = {
+                confirmDelete = false
+                onDelete()
+            },
+            onDismiss = { confirmDelete = false }
+        )
+    }
 
     if (showNewSeries) {
         NewSeriesDialog(
@@ -97,13 +112,22 @@ fun ModelEditScreen(
         // Outside the scrolling part, so going back is always one tap away, however far down the form is.
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(start = 4.dp, top = 4.dp, end = 16.dp)
+            modifier = Modifier.fillMaxWidth().padding(start = 4.dp, top = 4.dp, end = 4.dp)
         ) {
             // Same as Cancelar: leaves without saving.
             IconButton(onClick = onCancel) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
             }
-            Text(if (model == null) "Novo modelo" else "Editar modelo", style = MaterialTheme.typography.titleLarge)
+            Text(
+                if (model == null) "Novo modelo" else "Editar modelo",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.weight(1f)
+            )
+            if (model != null && onDelete != null) {
+                IconButton(onClick = { confirmDelete = true }, enabled = !saving) {
+                    Icon(Icons.Filled.Delete, contentDescription = "Excluir modelo", tint = MaterialTheme.colorScheme.error)
+                }
+            }
         }
 
         Column(

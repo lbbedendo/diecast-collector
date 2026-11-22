@@ -88,8 +88,12 @@ class DiecastApi(
             setBody(request)
         }.body()
 
+    /** Throws [ApiException] when the API refuses, e.g. a 404 for a Model that's already gone. */
     suspend fun deleteModel(id: Long) {
-        client.delete("$baseUrl/models/$id") { authorized() }
+        val response = client.delete("$baseUrl/models/$id") { authorized() }
+        if (!response.status.isSuccess()) {
+            throw ApiException(response.status.value, apiErrorMessage(response.status.value, response.bodyAsText()))
+        }
     }
 
     /** Throws [ApiException] when the API rejects the upload (e.g. a 404 for someone else's Model). */
