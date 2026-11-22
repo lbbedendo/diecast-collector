@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
@@ -43,19 +42,13 @@ fun CollectionListScreen(
     var pendingDelete by remember { mutableStateOf<DiecastModel?>(null) }
 
     pendingDelete?.let { model ->
-        AlertDialog(
-            onDismissRequest = { pendingDelete = null },
-            title = { Text("Excluir ${model.displayName}?") },
-            text = { Text("O modelo será removido da sua coleção. Essa ação não pode ser desfeita.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    pendingDelete = null
-                    onDelete(model.id)
-                }) { Text("Excluir") }
+        DeleteModelDialog(
+            model = model,
+            onConfirm = {
+                pendingDelete = null
+                onDelete(model.id)
             },
-            dismissButton = {
-                TextButton(onClick = { pendingDelete = null }) { Text("Cancelar") }
-            }
+            onDismiss = { pendingDelete = null }
         )
     }
 
