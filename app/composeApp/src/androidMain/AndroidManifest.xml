@@ -5,9 +5,10 @@
 
     <application
         android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
         android:label="Diecast Collector"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
-        <!-- TODO: add a real @mipmap/ic_launcher resource and set android:icon here -->
 
         <activity
             android:name=".MainActivity"

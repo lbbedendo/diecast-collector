@@ -128,7 +128,6 @@ refresh or logout takes effect on the very next call with no extra wiring.
   with `TODO`s — they need API credentials or an Xcode project that don't exist in this environment,
   not a code fix. Google sign-in works on Android (see `app/README.md` for the client ID it needs).
 - No pagination/filtering on `/models`, no refresh-token flow, local-disk-only photo storage.
-- Android has no launcher icon yet (manifest omits `android:icon`).
 
 ## Agent skills
 

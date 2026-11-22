@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A diecast car in side view, in the adaptive icon's 108dp canvas, shifted up so it sits centred.
+  The whole car stays inside the 66dp safe zone that every launcher mask (circle, squircle...) keeps.
+  Windows, wheel arches and the gap around the hubs are holes, not painted in the background
+  colour, so this drawable also works as the themed-icon monochrome layer.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group android:translateY="-4">
+        <!-- Body, with the two windows cut out. -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M22,66 L22,58 Q22,54 26,53 L36,51 L45,42.5 Q47,40.5 50,40.5 L61,40.5 Q64,40.5 66,42.5 L74,51 L82,52.5 Q86,53.5 86,57.5 L86,66 L82.5,66 A8.5,8.5 0 0,0 65.5,66 L42.5,66 A8.5,8.5 0 0,0 25.5,66 Z M39.5,50 L47.5,43.5 L54,43.5 L54,50 Z M57,43.5 L62.5,43.5 L69.5,50 L57,50 Z" />
+        <!-- Tyres: a ring with a hub in the middle. -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M27,66 A7,7 0 1,0 41,66 A7,7 0 1,0 27,66 Z M30.5,66 A3.5,3.5 0 1,0 37.5,66 A3.5,3.5 0 1,0 30.5,66 Z M67,66 A7,7 0 1,0 81,66 A7,7 0 1,0 67,66 Z M70.5,66 A3.5,3.5 0 1,0 77.5,66 A3.5,3.5 0 1,0 70.5,66 Z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M32.2,66 A1.8,1.8 0 1,0 35.8,66 A1.8,1.8 0 1,0 32.2,66 Z M72.2,66 A1.8,1.8 0 1,0 75.8,66 A1.8,1.8 0 1,0 72.2,66 Z" />
+        <!-- Ground line under the car. -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillAlpha="0.5"
+            android:pathData="M26,75 L82,75 L82,76.6 L26,76.6 Z" />
+    </group>
+</vector>

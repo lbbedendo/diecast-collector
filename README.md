@@ -45,8 +45,8 @@ all use the same fields.
 
 ## Known gaps (see the two READMEs for the full list)
 
-- Google/Apple sign-in and iOS camera capture are stubbed with TODOs — they need either API
-  credentials that don't exist yet or an Xcode project (this was scaffolded in a Linux
-  container with no Mac/Xcode available to generate and verify one).
+- Sign in with Apple, Google sign-in on iOS, and the iOS photo picker are stubbed with TODOs —
+  they need either API credentials that don't exist yet or an Xcode project (this was scaffolded
+  in a Linux container with no Mac/Xcode available to generate and verify one). Google sign-in
+  works on Android.
 - No pagination/filtering on `/models` yet, no refresh-token flow, local-disk photo storage only.
-- Android needs a real launcher icon before shipping (manifest omits `android:icon` for now).
