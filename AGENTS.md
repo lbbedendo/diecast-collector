@@ -168,7 +168,13 @@ cd app
 - The debug keystore (`~/.android/debug.keystore`) was generated manually with `keytool`, not by
   Android Studio — its SHA-1 is what's registered as the Android OAuth client's fingerprint in
   Google Cloud Console. If it's ever regenerated, the Google Cloud Console Android client needs
-  its SHA-1 updated to match, or Google sign-in will fail to recognize the app.
+  its SHA-1 updated to match, or Google sign-in will fail to recognize the app. That failure
+  looks like this: the account sheet opens, picking an account shows "Não foi possível entrar com
+  o Google", and logcat has `[8] Unknown error [status=UNREGISTERED_ON_API_CONSOLE]` then
+  `[16] Account reauth failed.` from `Auth.Api.Credentials`. Credential Manager hands it to the app
+  as a *cancellation*, which is why `isCancelledByUser` checks the message. The Android OAuth
+  client (package `com.diecastcollector.app` + that SHA-1) must be in the **same** Cloud project
+  as the Web client ID used as `GOOGLE_CLIENT_ID` (the number before the `-` in the client ID).
 
 ## General conventions
 

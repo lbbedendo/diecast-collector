@@ -1,5 +1,6 @@
 package com.diecastcollector.app.auth
 
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -32,10 +33,13 @@ actual class GoogleSignInLauncher(
         val credential = try {
             CredentialManager.create(activity).getCredential(activity, request).credential
         } catch (e: GetCredentialCancellationException) {
-            return null
+            if (isCancelledByUser(e.message)) return null
+            Log.w(TAG, "Google sign-in failed: ${e.message}", e)
+            throw SignInFailure(SignInFailure.Kind.FAILED, e)
         } catch (e: NoCredentialException) {
             throw SignInFailure(SignInFailure.Kind.NO_ACCOUNT, e)
         } catch (e: GetCredentialException) {
+            Log.w(TAG, "Google sign-in failed: ${e.message}", e)
             throw SignInFailure(SignInFailure.Kind.FAILED, e)
         }
 
@@ -65,3 +69,14 @@ actual class AppleSignInLauncher(private val activity: ComponentActivity) {
         continuation.resume(null) { _, _, _ -> }
     }
 }
+
+/**
+ * Google reports its own failures as a cancellation too — e.g. "[16] Account reauth failed." when
+ * the app isn't registered in the Cloud project (no Android OAuth client with this package name
+ * and signing SHA-1). Only the Collector backing out of the sheet ("[16] Cancelled by user.")
+ * should stay silent; the message is the only thing telling the two apart.
+ */
+internal fun isCancelledByUser(message: String?): Boolean =
+    message.orEmpty().contains("cancelled by user", ignoreCase = true)
+
+private const val TAG = "GoogleSignIn"
